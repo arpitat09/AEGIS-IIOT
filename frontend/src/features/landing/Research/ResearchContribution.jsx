@@ -1,9 +1,4 @@
-import {
-  Box,
-  Typography,
-  Paper,
-  Stack,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 const contributions = [
   "Hybrid Machine Learning Detection Framework",
@@ -15,37 +10,82 @@ const contributions = [
 
 function ResearchContribution() {
   return (
-    <Box sx={{ py: 12, px: 4 }}>
-      <Typography
-        variant="h2"
-        align="center"
-        mb={7}
-        fontWeight={700}
+    <Box
+      sx={{
+        width: "100%",
+        backgroundColor: "#0B0C09",
+        px: { xs: 3, md: 6, lg: 10 },
+        py: { xs: 10, md: 15 },
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: "900px",
+          mx: "auto",
+        }}
       >
-        Research Contributions
-      </Typography>
+        <Typography
+          sx={{
+            textAlign: "center",
+            fontSize: {
+              xs: "2.4rem",
+              md: "3.5rem",
+            },
+            fontWeight: 800,
+            mb: 6,
+          }}
+        >
+          Research Contributions
+        </Typography>
 
-      <Stack
-  spacing={3}
-  sx={{
-    maxWidth: 900,
-    mx: "auto",
-  }}
->
-        {contributions.map((item) => (
-          <Paper
-            key={item}
-            sx={{
-              p: 3,
-              borderRadius: 3,
-            }}
-          >
-            <Typography variant="h6">
-              • {item}
-            </Typography>
-          </Paper>
-        ))}
-      </Stack>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2.5,
+          }}
+        >
+          {contributions.map((item, index) => (
+            <Box
+              key={item}
+              sx={{
+                px: { xs: 3, md: 4 },
+                py: 2.7,
+                borderRadius: "999px",
+                backgroundColor: "#141713",
+                border: "1px solid rgba(245,241,232,0.08)",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "translateX(8px)",
+                  borderColor: "rgba(166,180,111,0.45)",
+                },
+              }}
+            >
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  fontSize: {
+                    xs: "0.9rem",
+                    md: "1rem",
+                  },
+                  color: "#F5F1E8",
+                }}
+              >
+                <Box
+                  component="span"
+                  sx={{
+                    color: "#A6B46F",
+                    mr: 1,
+                  }}
+                >
+                  {String(index + 1).padStart(2, "0")}.
+                </Box>
+                {item}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
     </Box>
   );
 }

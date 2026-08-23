@@ -1,48 +1,100 @@
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 
 function LandingNavbar() {
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
   return (
     <AppBar
       position="fixed"
       elevation={0}
       sx={{
-        background: "rgba(3,7,18,0.75)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(11,12,9,0.82)",
+        backdropFilter: "blur(18px)",
+        borderBottom: "1px solid rgba(245,241,232,0.08)",
       }}
     >
       <Toolbar
         sx={{
+          minHeight: "78px !important",
           maxWidth: "1400px",
           width: "100%",
-          margin: "auto",
+          mx: "auto",
+          px: { xs: 2, md: 4 },
         }}
       >
         <Typography
-          variant="h5"
+          component={Link}
+          to="/"
           sx={{
-            fontWeight: 700,
-            color: "#3B82F6",
+            textDecoration: "none",
+            color: "#F5F1E8",
+            fontSize: "1.15rem",
+            fontWeight: 800,
+            letterSpacing: "-0.04em",
           }}
         >
-          AEGIS IIOT
+          AEGIS<span style={{ color: "#A6B46F" }}>-</span>IIOT
         </Typography>
 
         <Box sx={{ flexGrow: 1 }} />
 
-        <Button color="inherit">Features</Button>
-        <Button color="inherit">Architecture</Button>
-        <Button color="inherit">Technology</Button>
-        <Button color="inherit">About</Button>
+        <Box
+          sx={{
+            display: { xs: "none", md: "flex" },
+            gap: 1,
+            mr: 3,
+          }}
+        >
+          <Button
+            onClick={() => scrollToSection("platform")}
+            sx={{ color: "#B8B9B0", textTransform: "none" }}
+          >
+            Platform
+          </Button>
+
+          <Button
+            onClick={() => scrollToSection("architecture")}
+            sx={{ color: "#B8B9B0", textTransform: "none" }}
+          >
+            Architecture
+          </Button>
+
+          <Button
+            onClick={() => scrollToSection("technology")}
+            sx={{ color: "#B8B9B0", textTransform: "none" }}
+          >
+            Technology
+          </Button>
+        </Box>
 
         <Button
           component={Link}
           to="/dashboard"
-          variant="contained"
-          sx={{ ml: 3 }}
+          sx={{
+            px: { xs: 2, md: 3 },
+            py: 1.1,
+            borderRadius: "999px",
+            textTransform: "none",
+            fontWeight: 700,
+            color: "#0B0C09",
+            background: "#A6B46F",
+            "&:hover": {
+              background: "#B8C985",
+            },
+          }}
         >
-          Launch Dashboard
+          Launch Platform
         </Button>
       </Toolbar>
     </AppBar>

@@ -1,0 +1,47 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #070b0f;
+  color: #f5f1e8;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.home-page {
+  position: relative;
+  min-height: 100vh;
+  background: #070b0f;
+  overflow: hidden;
+}
+
+.home-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Important:
+   All sections should allow the fixed animation
+   to remain visible behind them */
+.home-content section {
+  position: relative;
+  background: transparent;
+}
+
+/* If individual sections currently have different
+   solid background colors, override them */
+section,
+.hero,
+.stats,
+.features,
+.architecture,
+.technology,
+.research,
+.footer {
+  background-color: transparent;
+}

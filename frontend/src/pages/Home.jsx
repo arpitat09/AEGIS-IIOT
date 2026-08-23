@@ -7,18 +7,28 @@ import Technology from "../features/landing/Technology/Technology";
 import ResearchContribution from "../features/landing/Research/ResearchContribution";
 import Footer from "../features/landing/Footer/Footer";
 
+import AnimatedCyberBackground from "../features/landing/AnimatedCyberBackground/AnimatedCyberBackground";
+
 function Home() {
   return (
-    <>
-      <LandingNavbar />
-      <Hero />
-      <Stats />
-      <Features />
-      <ArchitecturePreview />
-      <Technology />
-      <ResearchContribution />
-      <Footer />
-    </>
+    <div className="home-page">
+      <AnimatedCyberBackground />
+
+      <div className="home-content">
+        <LandingNavbar />
+
+        <main>
+          <Hero />
+          <Stats />
+          <Features />
+          <ArchitecturePreview />
+          <Technology />
+          <ResearchContribution />
+        </main>
+
+        <Footer />
+      </div>
+    </div>
   );
 }
 
