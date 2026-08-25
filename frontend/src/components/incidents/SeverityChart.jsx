@@ -1,50 +1,145 @@
+import { Box, Paper, Typography } from "@mui/material";
+
 import {
   PieChart,
   Pie,
   Cell,
-  Tooltip,
   ResponsiveContainer,
+  Tooltip,
+  Legend,
 } from "recharts";
 
-import ChartCard from "../common/ChartCard";
+const severityColors = {
+  Critical: "#EF4444",
+  High: "#F97316",
+  Medium: "#F59E0B",
+  Low: "#22C55E",
+};
 
-const data = [
-  { name: "Critical", value: 12 },
-  { name: "High", value: 20 },
-  { name: "Medium", value: 35 },
-  { name: "Low", value: 18 },
-];
+function SeverityChart({ incidents = [] }) {
+  const severityData = [
+    {
+      name: "Critical",
+      value: incidents.filter(
+        (incident) => incident.severity === "Critical"
+      ).length,
+    },
+    {
+      name: "High",
+      value: incidents.filter(
+        (incident) => incident.severity === "High"
+      ).length,
+    },
+    {
+      name: "Medium",
+      value: incidents.filter(
+        (incident) => incident.severity === "Medium"
+      ).length,
+    },
+    {
+      name: "Low",
+      value: incidents.filter(
+        (incident) => incident.severity === "Low"
+      ).length,
+    },
+  ];
 
-const COLORS = [
-  "#EF4444",
-  "#F59E0B",
-  "#2563EB",
-  "#22C55E",
-];
+  const chartData = severityData.filter(
+    (item) => item.value > 0
+  );
 
-function SeverityChart() {
   return (
-    <ChartCard title="Incident Severity">
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            outerRadius={100}
-            label
-          >
-            {data.map((_, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index]}
-              />
-            ))}
-          </Pie>
+    <Paper
+      sx={{
+        p: 3,
+        borderRadius: 4,
+        bgcolor: "#111827",
+        border: "1px solid #1F2937",
+        minHeight: 420,
+      }}
+    >
+      <Typography
+        variant="h6"
+        sx={{
+          mb: 1,
+          fontWeight: 700,
+          color: "#F8FAFC",
+        }}
+      >
+        Incident Severity Distribution
+      </Typography>
 
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-    </ChartCard>
+      <Typography
+        sx={{
+          mb: 3,
+          color: "#94A3B8",
+          fontSize: "0.9rem",
+        }}
+      >
+        Real-time distribution of detected threats
+      </Typography>
+
+      {chartData.length > 0 ? (
+        <Box
+          sx={{
+            width: "100%",
+            height: 300,
+          }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={65}
+                outerRadius={105}
+                paddingAngle={4}
+                dataKey="value"
+              >
+                {chartData.map((entry) => (
+                  <Cell
+                    key={entry.name}
+                    fill={severityColors[entry.name]}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#0F172A",
+                  border: "1px solid #334155",
+                  borderRadius: "10px",
+                  color: "#F8FAFC",
+                }}
+              />
+
+              <Legend
+                verticalAlign="bottom"
+                height={36}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            height: 300,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography
+            sx={{
+              color: "#94A3B8",
+            }}
+          >
+            No severity data available
+          </Typography>
+        </Box>
+      )}
+    </Paper>
   );
 }
 

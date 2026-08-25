@@ -1,0 +1,159 @@
+from app import app
+from database.schema import db, Alert, User
+
+def test_api_routes():
+    with app.test_client() as client:
+        # Health check
+        res = client.get("/api/health")
+        assert res.status_code == 200, f"Health check failed: {res.status_code}"
+        print("✓ /api/health passed")
+
+        # ----------------------------------------------------
+        # Authentication & RBAC Tests
+        # ----------------------------------------------------
+        # 1. Successful Login
+        res = client.post("/api/auth/login", json={
+            "username": "admin@aegis-iiot.sec",
+            "password": "Admin@Aegis2026!SOC"
+        })
+        assert res.status_code == 200, f"Admin login failed: {res.status_code}"
+        auth_data = res.get_json()
+        assert "token" in auth_data, "Auth token should be in response"
+        admin_token = auth_data["token"]
+        assert auth_data["user"]["role"] == "ADMIN"
+        print(f"✓ /api/auth/login passed: authenticated {auth_data['user']['username']} (Role: {auth_data['user']['role']})")
+
+        # 2. Invalid Credentials
+        res = client.post("/api/auth/login", json={
+            "username": "admin@aegis-iiot.sec",
+            "password": "WrongPassword123!"
+        })
+        assert res.status_code == 401, f"Expected 401 for wrong credentials, got {res.status_code}"
+        print("✓ /api/auth/login rejected invalid credentials with 401")
+
+        # 3. Authenticated /me endpoint
+        res = client.get("/api/auth/me", headers={"Authorization": f"Bearer {admin_token}"})
+        assert res.status_code == 200, f"/api/auth/me failed: {res.status_code}"
+        me_data = res.get_json()
+        assert me_data["user"]["username"] == "admin"
+        assert me_data["permissions"]["can_manage_users"] is True
+        print("✓ /api/auth/me passed with valid Bearer token")
+
+        # 4. Security Audit Logs (Admin only)
+        res = client.get("/api/auth/audit-logs", headers={"Authorization": f"Bearer {admin_token}"})
+        assert res.status_code == 200, f"Audit logs failed: {res.status_code}"
+        audit_data = res.get_json()
+        assert "logs" in audit_data and len(audit_data["logs"]) > 0
+        print(f"✓ /api/auth/audit-logs passed: retrieved {audit_data['total']} immutable audit events")
+
+        # ----------------------------------------------------
+        # Threat Intelligence Feed
+        # ----------------------------------------------------
+        res = client.get("/api/reports/threat-intel")
+        assert res.status_code == 200, f"Threat intel failed: {res.status_code}"
+        intel_data = res.get_json()
+        assert "top_threat_sources" in intel_data
+        assert "most_targeted_assets" in intel_data
+        print(f"✓ /api/reports/threat-intel passed: {len(intel_data['top_threat_sources'])} adversary sources identified")
+
+        # Explainability
+        res = client.get("/api/explainability/summary")
+        assert res.status_code == 200, f"Explainability summary failed: {res.status_code}"
+        print("✓ /api/explainability/summary passed")
+
+        # Incidents summary and list
+        res = client.get("/api/incidents/summary")
+        assert res.status_code == 200, f"Incidents summary failed: {res.status_code}"
+        print("✓ /api/incidents/summary passed")
+
+        res1 = client.get("/api/incidents")
+        assert res1.status_code == 200, f"Incidents no-slash failed: {res1.status_code}"
+        res2 = client.get("/api/incidents/")
+        assert res2.status_code == 200, f"Incidents trailing-slash failed: {res2.status_code}"
+        assert len(res2.get_json()) > 0, "Incidents should return non-empty list"
+        print("✓ /api/incidents (both formats) passed with data")
+
+        # Monitoring
+        res = client.get("/api/monitoring/live")
+        assert res.status_code == 200, f"Monitoring live failed: {res.status_code}"
+        print("✓ /api/monitoring/live passed")
+
+        # Analytics
+        res = client.get("/api/analytics/summary")
+        assert res.status_code == 200, f"Analytics summary failed: {res.status_code}"
+        print("✓ /api/analytics/summary passed")
+
+        # Reports Summary (Dashboard Data Flow)
+        res = client.get("/api/reports/summary")
+        assert res.status_code == 200, f"Reports summary failed: {res.status_code}"
+        data = res.get_json()
+        assert data["total_alerts"] >= 13050, f"Expected >= 13050 total alerts, got {data['total_alerts']}"
+        assert data["critical_alerts"] > 0, "Critical alerts count should be > 0"
+        assert data["high_alerts"] > 0, "High alerts count should be > 0"
+        assert data["average_risk_score"] > 50, f"Expected average risk > 50, got {data['average_risk_score']}"
+        assert len(data["recent_alerts"]) == 20, f"Expected 20 recent alerts, got {len(data['recent_alerts'])}"
+        print("✓ /api/reports/summary passed with full dashboard assertions:")
+        print(f"   - Total Alerts: {data['total_alerts']}")
+        print(f"   - Critical Alerts: {data['critical_alerts']}")
+        print(f"   - High Alerts: {data['high_alerts']}")
+        print(f"   - Average Risk Score: {data['average_risk_score']}%")
+
+        # ----------------------------------------------------
+        # Unified Dashboard Live Contract (Phase 1)
+        # ----------------------------------------------------
+        res = client.get("/api/dashboard/live")
+        assert res.status_code == 200, f"Dashboard live failed: {res.status_code}"
+        dash_data = res.get_json()
+        assert "generated_at" in dash_data
+        assert "summary" in dash_data and dash_data["summary"]["total_alerts"] >= 13050
+        assert "threat_level" in dash_data and "score" in dash_data["threat_level"]
+        assert "recent_alerts" in dash_data and len(dash_data["recent_alerts"]) > 0
+        assert "attack_distribution" in dash_data
+        assert "traffic_chart" in dash_data and len(dash_data["traffic_chart"]) > 0
+        assert "incidents" in dash_data
+        assert "network_status" in dash_data
+        assert "devices" in dash_data
+        print("✓ /api/dashboard/live passed with full unified data contract:")
+        print(f"   - Total Monitored Alerts: {dash_data['summary']['total_alerts']}")
+        print(f"   - Dynamic Threat Score: {dash_data['threat_level']['score']}/100 ({dash_data['threat_level']['level']})")
+        print(f"   - Live Traffic Points: {len(dash_data['traffic_chart'])}")
+        print(f"   - Incident Records: {len(dash_data['incidents'])}")
+
+        # System Status
+        res = client.get("/api/system/status")
+        assert res.status_code == 200, f"System status failed: {res.status_code}"
+        sys_data = res.get_json()
+        assert "components" in sys_data
+        assert sys_data["components"]["backend"]["status"] == "online"
+        assert sys_data["components"]["ml_engine"]["status"] == "active"
+        print("✓ /api/system/status passed with live engine telemetry")
+
+        # Threat Score
+        res = client.get("/api/system/threat-score")
+        assert res.status_code == 200, f"Threat score failed: {res.status_code}"
+        threat_data = res.get_json()
+        assert 0 <= threat_data["score"] <= 100
+        print(f"✓ /api/system/threat-score passed: {threat_data['score']}/100 ({threat_data['level']})")
+
+        # Incident Management PATCH
+        res = client.get("/api/incidents?limit=1")
+        assert res.status_code == 200
+        incidents = res.get_json()
+        if incidents:
+            first_id = incidents[0]["id"]
+            patch_res = client.patch(f"/api/incidents/{first_id}", json={"status": "Contained", "action": "Block IP"})
+            assert patch_res.status_code == 200
+            assert patch_res.get_json()["status"] == "Contained"
+            print(f"✓ PATCH /api/incidents/{first_id} passed: updated status to Contained")
+
+        # Prevention
+        res = client.get("/api/prevention/")
+        assert res.status_code == 200, f"Prevention failed: {res.status_code}"
+        print("✓ /api/prevention/ passed")
+
+        print("\n=======================================================")
+        print("ALL AEGIS-IIOT SOC BACKEND APIS & SECURITY TESTS PASSED")
+        print("=======================================================")
+
+if __name__ == "__main__":
+    test_api_routes()

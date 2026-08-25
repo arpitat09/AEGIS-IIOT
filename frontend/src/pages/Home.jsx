@@ -1,29 +1,36 @@
 import LandingNavbar from "../features/landing/Navbar/LandingNavbar";
 import Hero from "../features/landing/Hero/Hero";
-import Stats from "../features/landing/Stats/Stats";
 import Features from "../features/landing/Features/Features";
-import ArchitecturePreview from "../features/landing/Architecture/ArchitecturePreview";
+import DefensePipeline from "../features/landing/Pipeline/DefensePipeline";
+import ThreatPreview from "../features/landing/ThreatPreview/ThreatPreview";
+import IndustrialFocus from "../features/landing/Industrial/IndustrialFocus";
 import Technology from "../features/landing/Technology/Technology";
-import ResearchContribution from "../features/landing/Research/ResearchContribution";
+import ArchitecturePreview from "../features/landing/Architecture/ArchitecturePreview";
+import SecurityFeatures from "../features/landing/Security/SecurityFeatures";
+import FinalCTA from "../features/landing/CTA/FinalCTA";
 import Footer from "../features/landing/Footer/Footer";
-
 import AnimatedCyberBackground from "../features/landing/AnimatedCyberBackground/AnimatedCyberBackground";
 
-function Home() {
+export default function Home() {
   return (
-    <div className="home-page">
+    <div style={{ position: "relative", minHeight: "100vh", backgroundColor: "#060B0A" }}>
+      {/* Background Animated Canvas */}
       <AnimatedCyberBackground />
 
-      <div className="home-content">
+      {/* Main Foreground Content */}
+      <div style={{ position: "relative", zIndex: 1 }}>
         <LandingNavbar />
 
         <main>
           <Hero />
-          <Stats />
           <Features />
-          <ArchitecturePreview />
+          <DefensePipeline />
+          <ThreatPreview />
+          <IndustrialFocus />
           <Technology />
-          <ResearchContribution />
+          <ArchitecturePreview />
+          <SecurityFeatures />
+          <FinalCTA />
         </main>
 
         <Footer />
@@ -31,5 +38,3 @@ function Home() {
     </div>
   );
 }
-
-export default Home;

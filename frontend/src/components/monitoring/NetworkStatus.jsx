@@ -1,56 +1,155 @@
-import { Grid, Paper, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 
-const cards = [
-  {
-    title: "Packets / sec",
-    value: "2,348",
-    color: "#2563EB",
-  },
-  {
-    title: "Active Connections",
-    value: "185",
-    color: "#22C55E",
-  },
-  {
-    title: "Threats Today",
-    value: "42",
-    color: "#EF4444",
-  },
-  {
-    title: "Bandwidth",
-    value: "865 Mbps",
-    color: "#F59E0B",
-  },
-];
+import {
+  Box,
+  Paper,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 
-function NetworkStatus() {
+import SpeedIcon from "@mui/icons-material/Speed";
+import HubIcon from "@mui/icons-material/Hub";
+import SecurityIcon from "@mui/icons-material/Security";
+import StorageIcon from "@mui/icons-material/Storage";
+
+import { apiService } from "../../services/api";
+
+function NetworkStatus({ data = null }) {
+  const [internalStatus, setInternalStatus] = useState(null);
+
+  useEffect(() => {
+    if (data) return; // Prop provided from parent
+
+    let isMounted = true;
+    const fetchNetworkStatus = async () => {
+      try {
+        const res = await apiService.getMonitoringLive();
+        if (isMounted && res?.network_status) {
+          setInternalStatus(res.network_status);
+        }
+      } catch (error) {
+        console.error("Network status API error:", error);
+      }
+    };
+
+    fetchNetworkStatus();
+    const interval = setInterval(fetchNetworkStatus, 5000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [data]);
+
+  const status = data || internalStatus;
+
+  const metrics = [
+    {
+      title: "Packets / Second",
+      value: status?.packets_per_second ?? 0,
+      icon: <SpeedIcon />,
+    },
+    {
+      title: "Active Connections",
+      value: status?.active_connections ?? 0,
+      icon: <HubIcon />,
+    },
+    {
+      title: "Threats Detected",
+      value: status?.threats_today ?? 0,
+      icon: <SecurityIcon />,
+    },
+    {
+      title: "Bandwidth",
+      value: `${status?.bandwidth_mbps ?? 0} Mbps`,
+      icon: <StorageIcon />,
+    },
+  ];
+
   return (
-    <Grid container spacing={3}>
-      {cards.map((card) => (
-        <Grid key={card.title} size={{ xs: 12, sm: 6, lg: 3 }}>
-          <Paper
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "repeat(2, 1fr)",
+          lg: "repeat(4, 1fr)",
+        },
+        gap: 3,
+      }}
+    >
+      {metrics.map((metric) => (
+        <Paper
+          key={metric.title}
+          sx={{
+            p: 3,
+            borderRadius: 4,
+            bgcolor: "#111827",
+            border: "1px solid #1E293B",
+            minHeight: 145,
+            transition: "0.2s",
+            "&:hover": {
+              transform: "translateY(-3px)",
+              borderColor: "#2563EB",
+            },
+          }}
+        >
+          <Box
             sx={{
-              p: 3,
-              borderRadius: 3,
-              bgcolor: "#111827",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
             }}
           >
-            <Typography color="gray">
-              {card.title}
-            </Typography>
+            <Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                {metric.title}
+              </Typography>
 
-            <Typography
-              variant="h4"
-              mt={2}
-              fontWeight={700}
-              sx={{ color: card.color }}
+              <Typography
+                variant="h4"
+                fontWeight={700}
+              >
+                {metric.value}
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 3,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "rgba(59, 130, 246, 0.15)",
+                color: "#faa560",
+              }}
             >
-              {card.value}
-            </Typography>
-          </Paper>
-        </Grid>
+              {metric.icon}
+            </Box>
+          </Box>
+
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              mt: 2,
+              color: "#22C55E",
+              fontWeight: 600,
+            }}
+          >
+            ● LIVE
+          </Typography>
+        </Paper>
       ))}
-    </Grid>
+    </Box>
   );
 }
 

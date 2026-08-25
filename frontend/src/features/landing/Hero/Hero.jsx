@@ -1,15 +1,52 @@
+import { useEffect, useState } from "react";
 import { Box, Typography, Button, Stack } from "@mui/material";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ShieldIcon from "@mui/icons-material/Shield";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ExploreIcon from "@mui/icons-material/Explore";
+import MemoryIcon from "@mui/icons-material/Memory";
+import StreamIcon from "@mui/icons-material/Stream";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import HubIcon from "@mui/icons-material/Hub";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import AnimatedCyberBackground from "../AnimatedCyberBackground/AnimatedCyberBackground";
+import LiveSystemStatusPanel from "./LiveSystemStatusPanel";
+import { apiService } from "../../../services/api";
 
-function Hero() {
-  const scrollToPlatform = () => {
-    document.getElementById("platform")?.scrollIntoView({
+export default function Hero() {
+  const [liveMetrics, setLiveMetrics] = useState({
+    flows: "1,248",
+    threats: 24,
+    nodes: 36,
+    status: "ONLINE",
+    highRisk: 3,
+  });
+
+  useEffect(() => {
+    // Attempt to fetch real telemetry metrics
+    const loadLiveCounts = async () => {
+      try {
+        const data = await apiService.getDashboardLive();
+        if (data && data.summary) {
+          setLiveMetrics({
+            flows: (data.summary.total_alerts || 1248).toLocaleString(),
+            threats: data.summary.critical_alerts + data.summary.high_alerts || 24,
+            nodes: data.summary.active_devices || 36,
+            status: "ONLINE",
+            highRisk: data.summary.critical_alerts || 3,
+          });
+        }
+      } catch {
+        // Safe fallback metrics
+      }
+    };
+    loadLiveCounts();
+  }, []);
+
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({
       behavior: "smooth",
     });
   };
@@ -23,65 +60,22 @@ function Hero() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        px: {
-          xs: 3,
-          md: 6,
-          lg: 10,
-        },
-        pt: {
-          xs: 12,
-          md: 14,
-        },
-        pb: {
-          xs: 8,
-          md: 10,
-        },
-        background:
-          "radial-gradient(circle at center, #10150F 0%, #090B09 55%, #050606 100%)",
-        color: "#F5F1E8",
+        px: { xs: 2.5, sm: 4, md: 6, lg: 8 },
+        pt: { xs: 14, md: 16 },
+        pb: { xs: 8, md: 12 },
+        background: "radial-gradient(ellipse at 50% 30%, #0B1413 0%, #08110F 50%, #060B0A 100%)",
+        color: "#F3F7F6",
       }}
     >
-      {/* Animated Cyber Network Background */}
-      <AnimatedCyberBackground />
-
-      {/* Subtle central glow */}
+      {/* Subtle Background Radial Glow */}
       <Box
         sx={{
           position: "absolute",
-          width: {
-            xs: 450,
-            md: 700,
-          },
-          height: {
-            xs: 450,
-            md: 700,
-          },
+          width: { xs: "350px", md: "700px" },
+          height: { xs: "350px", md: "700px" },
           borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(166,180,111,0.13) 0%, rgba(166,180,111,0.05) 35%, transparent 70%)",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-
-      {/* Circular cyber rings */}
-      <Box
-        sx={{
-          position: "absolute",
-          width: {
-            xs: "520px",
-            md: "760px",
-          },
-          height: {
-            xs: "520px",
-            md: "760px",
-          },
-          borderRadius: "50%",
-          border: "1px solid rgba(166,180,111,0.14)",
-          top: "50%",
+          background: "radial-gradient(circle, rgba(0, 229, 168, 0.08) 0%, transparent 70%)",
+          top: "40%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           pointerEvents: "none",
@@ -89,258 +83,268 @@ function Hero() {
         }}
       />
 
-      <Box
-        sx={{
-          position: "absolute",
-          width: {
-            xs: "650px",
-            md: "1050px",
-          },
-          height: {
-            xs: "650px",
-            md: "1050px",
-          },
-          borderRadius: "50%",
-          border: "1px solid rgba(232,111,42,0.08)",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
-
-      {/* Main Hero Content */}
       <Box
         sx={{
           width: "100%",
           maxWidth: "1400px",
           mx: "auto",
           position: "relative",
-          zIndex: 3,
-          textAlign: "center",
+          zIndex: 2,
         }}
       >
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 35,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 0.9,
-            ease: "easeOut",
+        {/* Main Grid: Left Hero Content + Right Live Status Panel */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", lg: "1.2fr 0.8fr" },
+            gap: { xs: 6, lg: 8 },
+            alignItems: "center",
           }}
         >
-          {/* Badge */}
-          <Box
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1,
-              px: 2,
-              py: 0.8,
-              mb: {
-                xs: 3,
-                md: 4,
-              },
-              borderRadius: "999px",
-              border:
-                "1px solid rgba(166,180,111,0.35)",
-              background:
-                "rgba(166,180,111,0.07)",
-              boxShadow:
-                "0 0 30px rgba(166,180,111,0.08)",
-            }}
+          {/* Left Column */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
+            {/* Top Badge */}
             <Box
               sx={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#A6B46F",
-                boxShadow:
-                  "0 0 10px rgba(166,180,111,0.9)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.2,
+                px: 2,
+                py: 0.7,
+                mb: 3,
+                borderRadius: "999px",
+                border: "1px solid rgba(0, 229, 168, 0.3)",
+                bgcolor: "rgba(0, 229, 168, 0.06)",
+                boxShadow: "0 0 20px rgba(0, 229, 168, 0.1)",
               }}
-            />
+            >
+              <Box
+                sx={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  bgcolor: "#00E5A8",
+                  boxShadow: "0 0 8px #00E5A8",
+                  animation: "pulseDot 2s infinite",
+                  "@keyframes pulseDot": {
+                    "0%": { opacity: 1, transform: "scale(1)" },
+                    "50%": { opacity: 0.4, transform: "scale(1.2)" },
+                    "100%": { opacity: 1, transform: "scale(1)" },
+                  },
+                }}
+              />
+              <Typography
+                sx={{
+                  color: "#00E5A8",
+                  fontSize: { xs: "0.68rem", md: "0.76rem" },
+                  fontWeight: 800,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                AEGIS-IIOT · INDUSTRIAL CYBER DEFENSE
+              </Typography>
+            </Box>
 
+            {/* Main Heading */}
+            <Typography
+              variant="h1"
+              sx={{
+                fontSize: { xs: "2.8rem", sm: "3.8rem", md: "4.8rem", lg: "5.4rem" },
+                lineHeight: { xs: 1.05, md: 1.0 },
+                letterSpacing: "-0.04em",
+                fontWeight: 900,
+                color: "#F3F7F6",
+                mb: 2.5,
+              }}
+            >
+              Real-Time
+              <br />
+              Intelligence
+              <br />
+              <Box
+                component="span"
+                sx={{
+                  background: "linear-gradient(90deg, #00E5A8 0%, #8AFF80 60%, #3B82F6 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Defending IIoT.
+              </Box>
+            </Typography>
+
+            {/* Subtitle */}
             <Typography
               sx={{
-                color: "#C7D08F",
-                fontSize: {
-                  xs: "0.6rem",
-                  md: "0.72rem",
-                },
-                fontWeight: 700,
-                letterSpacing: {
-                  xs: "0.12em",
-                  md: "0.18em",
-                },
+                color: "#9CAFA9",
+                fontSize: { xs: "1rem", md: "1.15rem" },
+                lineHeight: 1.65,
+                maxWidth: 600,
+                mb: 4,
               }}
             >
-              AEGIS-IIOT · INDUSTRIAL CYBER DEFENSE
+              Detect anomalies, understand threats, and respond intelligently with hybrid
+              machine learning and adaptive prevention for industrial IoT environments.
             </Typography>
-          </Box>
 
-          {/* Main Heading */}
-          <Typography
-            sx={{
-              fontSize: {
-                xs: "3.5rem",
-                sm: "4.8rem",
-                md: "6.5rem",
-                lg: "7.8rem",
-              },
-              lineHeight: {
-                xs: 0.98,
-                md: 0.9,
-              },
-              letterSpacing: {
-                xs: "-0.05em",
-                md: "-0.065em",
-              },
-              fontWeight: 800,
-              maxWidth: "1050px",
-              mx: "auto",
-              color: "#F5F1E8",
-              textShadow:
-                "0 0 40px rgba(245,241,232,0.05)",
-            }}
-          >
-            Real-Time
-            <br />
+            {/* Action Buttons */}
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              alignItems={{ xs: "stretch", sm: "center" }}
+              sx={{ mb: 5 }}
+            >
+              <Button
+                component={Link}
+                to="/dashboard"
+                variant="contained"
+                startIcon={<ShieldIcon />}
+                endIcon={<ArrowForwardIcon />}
+                sx={{
+                  px: 3.5,
+                  py: 1.6,
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontSize: "1rem",
+                  fontWeight: 800,
+                  color: "#060B0A",
+                  background: "linear-gradient(135deg, #00E5A8 0%, #00C896 100%)",
+                  boxShadow: "0 10px 30px rgba(0, 229, 168, 0.3)",
+                  transition: "all 0.25s ease",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #33ECC0 0%, #00E5A8 100%)",
+                    boxShadow: "0 15px 40px rgba(0, 229, 168, 0.45)",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                ENTER LIVE DASHBOARD
+              </Button>
 
-            Intelligence
-            <br />
+              <Button
+                onClick={() => scrollToSection("capabilities")}
+                startIcon={<ExploreIcon />}
+                sx={{
+                  px: 3,
+                  py: 1.6,
+                  borderRadius: "12px",
+                  color: "#F3F7F6",
+                  border: "1px solid rgba(0, 229, 168, 0.25)",
+                  bgcolor: "rgba(0, 229, 168, 0.03)",
+                  textTransform: "none",
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  "&:hover": {
+                    bgcolor: "rgba(0, 229, 168, 0.1)",
+                    borderColor: "rgba(0, 229, 168, 0.5)",
+                  },
+                }}
+              >
+                EXPLORE PLATFORM
+              </Button>
+            </Stack>
 
-            Defending{" "}
-
+            {/* Subtle View Architecture Action */}
             <Box
-              component="span"
-              sx={{
-                background:
-                  "linear-gradient(90deg, #F5F1E8 0%, #D8C48B 55%, #E86F2A 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              IIoT.
-            </Box>
-          </Typography>
-
-          {/* Description */}
-          <Typography
-            sx={{
-              mt: {
-                xs: 4,
-                md: 5,
-              },
-              maxWidth: "720px",
-              mx: "auto",
-              color: "#B7B8B0",
-              fontSize: {
-                xs: "1rem",
-                md: "1.18rem",
-              },
-              lineHeight: 1.65,
-            }}
-          >
-            Detect anomalies, understand threats, and respond intelligently
-            with hybrid machine learning and adaptive prevention built for
-            industrial environments.
-          </Typography>
-
-          {/* Buttons */}
-          <Stack
-            direction={{
-              xs: "column",
-              sm: "row",
-            }}
-            spacing={2}
-            justifyContent="center"
-            sx={{
-              mt: {
-                xs: 4,
-                md: 5,
-              },
-            }}
-          >
-            <Button
               component={Link}
-              to="/dashboard"
-              variant="contained"
-              endIcon={<ShieldOutlinedIcon />}
+              to="/architecture"
               sx={{
-                width: {
-                  xs: "100%",
-                  sm: "auto",
-                },
-                minWidth: {
-                  sm: "230px",
-                },
-                px: 4,
-                py: 1.6,
-                borderRadius: "12px",
-                textTransform: "none",
-                fontSize: "0.98rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                color: "#00E5A8",
+                textDecoration: "none",
+                fontSize: "0.88rem",
                 fontWeight: 700,
-                background: "#F47721",
-                color: "#10110D",
-                boxShadow:
-                  "0 12px 30px rgba(244,119,33,0.22)",
-
-                "&:hover": {
-                  background: "#FF8A3D",
-                  boxShadow:
-                    "0 15px 35px rgba(244,119,33,0.32)",
-                },
+                letterSpacing: "0.02em",
+                "&:hover": { textDecoration: "underline" },
+                mb: 4,
               }}
             >
-              Enter Live Dashboard
-            </Button>
+              <MemoryIcon sx={{ fontSize: 18 }} />
+              VIEW SYSTEM ARCHITECTURE →
+            </Box>
 
-            <Button
-              onClick={scrollToPlatform}
-              endIcon={<ArrowDownwardIcon />}
+            {/* 4 Compact Live Metrics */}
+            <Box
               sx={{
-                width: {
-                  xs: "100%",
-                  sm: "auto",
-                },
-                minWidth: {
-                  sm: "190px",
-                },
-                px: 4,
-                py: 1.6,
-                borderRadius: "12px",
-                color: "#E8E8E1",
-                border:
-                  "1px solid rgba(245,241,232,0.18)",
-                textTransform: "none",
-                fontSize: "0.98rem",
-                fontWeight: 600,
-                background:
-                  "rgba(255,255,255,0.02)",
-
-                "&:hover": {
-                  borderColor:
-                    "rgba(166,180,111,0.6)",
-                  background:
-                    "rgba(166,180,111,0.08)",
-                },
+                display: "grid",
+                gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" },
+                gap: 1.5,
+                p: 2,
+                borderRadius: 2,
+                bgcolor: "rgba(11, 20, 19, 0.6)",
+                border: "1px solid rgba(0, 229, 168, 0.15)",
+                backdropFilter: "blur(10px)",
               }}
             >
-              Explore Platform
-            </Button>
-          </Stack>
-        </motion.div>
+              <Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, color: "#00E5A8", mb: 0.3 }}>
+                  <StreamIcon sx={{ fontSize: 16 }} />
+                  <Typography sx={{ color: "#9CAFA9", fontSize: "0.68rem", fontWeight: 700 }}>
+                    LIVE FLOWS
+                  </Typography>
+                </Box>
+                <Typography sx={{ color: "#F3F7F6", fontWeight: 900, fontSize: "1.2rem", fontFamily: "monospace" }}>
+                  {liveMetrics.flows}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, color: "#FFB020", mb: 0.3 }}>
+                  <WarningAmberIcon sx={{ fontSize: 16 }} />
+                  <Typography sx={{ color: "#9CAFA9", fontSize: "0.68rem", fontWeight: 700 }}>
+                    THREATS DETECTED
+                  </Typography>
+                </Box>
+                <Typography sx={{ color: "#FFB020", fontWeight: 900, fontSize: "1.2rem", fontFamily: "monospace" }}>
+                  {liveMetrics.threats}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, color: "#3B82F6", mb: 0.3 }}>
+                  <HubIcon sx={{ fontSize: 16 }} />
+                  <Typography sx={{ color: "#9CAFA9", fontSize: "0.68rem", fontWeight: 700 }}>
+                    ACTIVE NODES
+                  </Typography>
+                </Box>
+                <Typography sx={{ color: "#F3F7F6", fontWeight: 900, fontSize: "1.2rem", fontFamily: "monospace" }}>
+                  {liveMetrics.nodes}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, color: "#00E5A8", mb: 0.3 }}>
+                  <CheckCircleIcon sx={{ fontSize: 16 }} />
+                  <Typography sx={{ color: "#9CAFA9", fontSize: "0.68rem", fontWeight: 700 }}>
+                    MODEL STATUS
+                  </Typography>
+                </Box>
+                <Typography sx={{ color: "#00E5A8", fontWeight: 900, fontSize: "1.1rem", letterSpacing: "0.05em" }}>
+                  ONLINE
+                </Typography>
+              </Box>
+            </Box>
+          </motion.div>
+
+          {/* Right Column: Live Security Status Panel */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
+            style={{ display: "flex", justifyContent: "center" }}
+          >
+            <LiveSystemStatusPanel liveMetrics={liveMetrics} />
+          </motion.div>
+        </Box>
       </Box>
     </Box>
   );
 }
-
-export default Hero;

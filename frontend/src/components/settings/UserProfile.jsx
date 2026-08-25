@@ -14,7 +14,13 @@ function UserProfile() {
         bgcolor: "#111827",
       }}
     >
-      <Box display="flex" alignItems="center" gap={3}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 3,
+        }}
+      >
         <Avatar
           sx={{
             width: 70,

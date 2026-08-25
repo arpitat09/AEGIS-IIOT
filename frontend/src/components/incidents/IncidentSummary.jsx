@@ -1,50 +1,172 @@
-import { Grid } from "@mui/material";
-import GppBadIcon from "@mui/icons-material/GppBad";
-import ShieldIcon from "@mui/icons-material/Shield";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { Box, Paper, Typography } from "@mui/material";
 
-import MetricCard from "../common/MetricCard";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
+import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
+import BlockRoundedIcon from "@mui/icons-material/BlockRounded";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
-function IncidentSummary() {
+function SummaryCard({ title, value, subtitle, icon, iconBg }) {
   return (
-    <Grid container spacing={3}>
-      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <MetricCard
-          title="Open Incidents"
-          value="18"
-          color="#EF4444"
-          icon={<GppBadIcon color="error" />}
-        />
-      </Grid>
+    <Paper
+      sx={{
+        p: 3,
+        borderRadius: 4,
+        bgcolor: "#111827",
+        border: "1px solid #1F2937",
+        minHeight: 150,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}
+      >
+        <Box>
+          <Typography
+            sx={{
+              color: "#94A3B8",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+            }}
+          >
+            {title}
+          </Typography>
 
-      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <MetricCard
-          title="Critical Threats"
-          value="5"
-          color="#F59E0B"
-          icon={<WarningAmberIcon color="warning" />}
-        />
-      </Grid>
+          <Typography
+            sx={{
+              mt: 1,
+              color: "#F8FAFC",
+              fontSize: "2rem",
+              fontWeight: 700,
+            }}
+          >
+            {value}
+          </Typography>
+        </Box>
 
-      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <MetricCard
-          title="Blocked Attacks"
-          value="94"
-          color="#22C55E"
-          icon={<ShieldIcon color="success" />}
-        />
-      </Grid>
+        <Box
+          sx={{
+            width: 46,
+            height: 46,
+            borderRadius: 3,
+            bgcolor: iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {icon}
+        </Box>
+      </Box>
 
-      <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <MetricCard
-          title="Resolved"
-          value="81"
-          color="#2563EB"
-          icon={<CheckCircleIcon color="primary" />}
-        />
-      </Grid>
-    </Grid>
+      <Typography
+        sx={{
+          mt: 2,
+          color: "#64748B",
+          fontSize: "0.8rem",
+        }}
+      >
+        {subtitle}
+      </Typography>
+    </Paper>
+  );
+}
+
+function IncidentSummary({ incidents = [] }) {
+  const totalIncidents = incidents.length;
+
+  const criticalThreats = incidents.filter(
+    (incident) =>
+      incident.severity?.toLowerCase() === "critical"
+  ).length;
+
+  const blockedAttacks = incidents.filter(
+    (incident) =>
+      incident.action?.toLowerCase().includes("block")
+  ).length;
+
+  const resolvedIncidents = incidents.filter(
+    (incident) =>
+      incident.status?.toLowerCase() === "resolved"
+  ).length;
+
+  return (
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "repeat(2, 1fr)",
+          lg: "repeat(4, 1fr)",
+        },
+        gap: 3,
+      }}
+    >
+      <SummaryCard
+        title="Total Incidents"
+        value={totalIncidents}
+        subtitle="Detected security events"
+        icon={
+          <WarningAmberRoundedIcon
+            sx={{
+              color: "#F59E0B",
+              fontSize: 26,
+            }}
+          />
+        }
+        iconBg="rgba(245, 158, 11, 0.12)"
+      />
+
+      <SummaryCard
+        title="Critical Threats"
+        value={criticalThreats}
+        subtitle="Require immediate attention"
+        icon={
+          <ReportProblemRoundedIcon
+            sx={{
+              color: "#EF4444",
+              fontSize: 26,
+            }}
+          />
+        }
+        iconBg="rgba(239, 68, 68, 0.12)"
+      />
+
+      <SummaryCard
+        title="Blocked Attacks"
+        value={blockedAttacks}
+        subtitle="Automatic prevention applied"
+        icon={
+          <BlockRoundedIcon
+            sx={{
+              color: "#A855F7",
+              fontSize: 26,
+            }}
+          />
+        }
+        iconBg="rgba(168, 85, 247, 0.12)"
+      />
+
+      <SummaryCard
+        title="Resolved Incidents"
+        value={resolvedIncidents}
+        subtitle="Successfully handled events"
+        icon={
+          <CheckCircleRoundedIcon
+            sx={{
+              color: "#22C55E",
+              fontSize: 26,
+            }}
+          />
+        }
+        iconBg="rgba(34, 197, 94, 0.12)"
+      />
+    </Box>
   );
 }
 
