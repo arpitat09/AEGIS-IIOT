@@ -40,6 +40,7 @@ export function useRealtimeStream(onNewAlert) {
           try {
             const data = JSON.parse(event.data);
             setLastEventTime(new Date());
+            setConnectionState("Connected");
 
             if (data.type === "new_alert" && onNewAlertRef.current) {
               onNewAlertRef.current(data.payload);
@@ -52,15 +53,19 @@ export function useRealtimeStream(onNewAlert) {
         es.onerror = () => {
           if (isSubscribed) {
             setConnectionState("Reconnecting");
-            es.close();
-            // Schedule reconnect in 3s
-            reconnectTimeoutRef.current = setTimeout(connectSSE, 3000);
+            try {
+              es.close();
+            } catch (e) {}
+            // Fast reconnect in 1.5s
+            if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+            reconnectTimeoutRef.current = setTimeout(connectSSE, 1500);
           }
         };
       } catch (err) {
         if (isSubscribed) {
           setConnectionState("Disconnected");
-          reconnectTimeoutRef.current = setTimeout(connectSSE, 5000);
+          if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = setTimeout(connectSSE, 2000);
         }
       }
     };

@@ -59,16 +59,24 @@ def calculate_threat_score():
     low_count_top = sum(1 for a in top5 if a.severity in ("Low", "Normal", "Informational"))
 
     # Dynamic severity pressure
-    severity_adjustment = (crit_count_top * 6.0) + (high_count_top * 2.5) - (low_count_top * 4.0)
+    severity_adjustment = (crit_count_top * 5.0) + (high_count_top * 2.0) - (low_count_top * 6.0)
 
     # Distinct source/target pressure
     distinct_sources = len(set(a.source_ip for a in current_batch if a.source_ip))
     distinct_targets = len(set(a.destination_ip for a in current_batch if a.destination_ip))
-    spread_factor = min(10.0, (distinct_sources * 1.5) + (distinct_targets * 1.0))
+    spread_factor = min(8.0, (distinct_sources * 1.2) + (distinct_targets * 0.8))
+
+    # Time-based Recency Decay: If latest alert is older, decay threat pressure
+    now = datetime.utcnow()
+    latest_alert_time = recent_alerts[0].timestamp if (recent_alerts and recent_alerts[0].timestamp) else now
+    elapsed_seconds = max(0, (now - latest_alert_time).total_seconds())
+
+    # Decay multiplier: 1.0 within 15s, decaying to 0.4 after 60s of calm
+    time_decay = max(0.35, 1.0 - (elapsed_seconds / 90.0))
 
     # 5. Composite Final Score
-    raw_score = current_weighted_risk + severity_adjustment + spread_factor
-    score = int(min(100, max(5, round(raw_score))))
+    raw_score = (current_weighted_risk + severity_adjustment + spread_factor) * time_decay
+    score = int(min(98, max(12, round(raw_score))))
 
     # 6. Map Threat Level Category & SOC Color Token
     if score >= 81:

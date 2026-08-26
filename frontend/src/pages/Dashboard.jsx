@@ -57,11 +57,13 @@ export default function Dashboard() {
       };
     });
     setLastUpdated(new Date());
+    // Immediately fetch refreshed threat scores & traffic coordinates
+    fetchData();
   });
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 4000);
+    const interval = setInterval(fetchData, 3000);
     return () => clearInterval(interval);
   }, [fetchData]);
 

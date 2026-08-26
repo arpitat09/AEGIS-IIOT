@@ -137,11 +137,11 @@ def run_synthetic_traffic_generator():
                     process_packet(pkt)
                     time.sleep(0.02)
 
-            time.sleep(random.uniform(1.5, 3.5))
+            time.sleep(random.uniform(0.8, 1.8))
 
         except Exception as e:
             print(f"[AEGIS-IIOT Simulation Error]: {e}")
-            time.sleep(2)
+            time.sleep(1)
 
 
 def start_capture(app, interface=None):

@@ -27,7 +27,7 @@ from services.realtime_predictor import (
 flows = defaultdict(dict)
 
 
-FLOW_TIMEOUT = 10
+FLOW_TIMEOUT = 2.0
 
 
 flow_lock = threading.Lock()
@@ -133,6 +133,7 @@ def process_packet(packet):
 
 
     current_time = time.time()
+    ready_flow = None
 
 
     with flow_lock:
@@ -213,6 +214,13 @@ def process_packet(packet):
             "last_seen"
         ] = current_time
 
+        # Immediate threshold trigger: process flow once 6 packets accumulate
+        if len(flows[flow_key]["packets"]) >= 6:
+            ready_flow = flows.pop(flow_key)
+
+    if ready_flow:
+        process_flow(ready_flow)
+
 
 # ---------------------------------------
 # Background Flow Cleanup
@@ -284,7 +292,7 @@ def cleanup_expired_flows():
             )
 
 
-        time.sleep(1)
+        time.sleep(0.5)
 
 
 # ---------------------------------------

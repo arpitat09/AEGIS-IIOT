@@ -35,7 +35,7 @@ def stream_events():
     Server-Sent Events endpoint for zero-latency dashboard and alert updates.
     """
     def event_generator():
-        client_queue = queue.Queue(maxsize=50)
+        client_queue = queue.Queue(maxsize=100)
         SUBSCRIBERS.add(client_queue)
         
         # Send initial connected handshake
@@ -49,8 +49,8 @@ def stream_events():
         try:
             while True:
                 try:
-                    # Wait up to 15s for new events, else send keep-alive heartbeat
-                    msg = client_queue.get(timeout=15.0)
+                    # 2.5s timeout ensures keep-alive heartbeats prevent any proxy disconnects
+                    msg = client_queue.get(timeout=2.5)
                     yield f"data: {msg}\n\n"
                 except queue.Empty:
                     heartbeat = json.dumps({
@@ -67,8 +67,10 @@ def stream_events():
         event_generator(),
         mimetype="text/event-stream",
         headers={
-            "Cache-Control": "no-cache",
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache, no-transform",
             "X-Accel-Buffering": "no",
-            "Connection": "keep-alive"
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*"
         }
     )
