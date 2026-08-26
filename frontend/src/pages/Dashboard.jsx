@@ -15,6 +15,7 @@ import TrafficChart from "../components/dashboard/TrafficChart";
 import AttackDistribution from "../components/dashboard/AttackDistribution";
 import AlertPanel from "../components/dashboard/AlertPanel";
 import IncidentTable from "../components/dashboard/IncidentTable";
+import IndustrialSecurityOverview from "../components/dashboard/IndustrialSecurityOverview";
 import LiveIndicator from "../components/common/LiveIndicator";
 
 import { apiService } from "../services/api";
@@ -95,7 +96,7 @@ export default function Dashboard() {
               mt: 0.3,
             }}
           >
-            Real-Time Adaptive Cyber Defense Overview
+            Real-Time Adaptive Cyber Defense & Industrial IoT Overview
           </Typography>
         </Box>
 
@@ -145,6 +146,12 @@ export default function Dashboard() {
           {error}
         </Alert>
       )}
+
+      {/* Industrial Cybersecurity & Cyber-Physical Overview */}
+      <IndustrialSecurityOverview
+        dashboardData={dashboardData}
+        onTriggerSimulation={fetchData}
+      />
 
       {/* Row 1: Overview Cards (6 metrics) */}
       <OverviewCards

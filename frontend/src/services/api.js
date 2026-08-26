@@ -128,11 +128,16 @@ export const apiService = {
 
 
   // ========================================
-  // PREVENTION
+  // PREVENTION ENGINE
   // ========================================
 
   getPrevention: async () => {
     const response = await api.get("/api/prevention/");
+    return response.data;
+  },
+
+  getPreventionStatus: async () => {
+    const response = await api.get("/api/prevention/status");
     return response.data;
   },
 
@@ -143,6 +148,25 @@ export const apiService = {
 
   unblockRule: async (ruleId) => {
     const response = await api.post(`/api/prevention/rules/unblock/${ruleId}`);
+    return response.data;
+  },
+
+  // ========================================
+  // SENSOR TELEMETRY & INDUSTRIAL SIMULATION
+  // ========================================
+
+  getSensorTelemetry: async () => {
+    const response = await api.get("/api/detection/sensors");
+    return response.data;
+  },
+
+  simulateFdia: async (data = {}) => {
+    const response = await api.post("/api/detection/simulate-fdia", data);
+    return response.data;
+  },
+
+  simulateModbus: async (data = {}) => {
+    const response = await api.post("/api/detection/simulate-modbus", data);
     return response.data;
   },
 

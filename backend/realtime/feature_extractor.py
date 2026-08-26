@@ -18,37 +18,45 @@ def get_protocol(packet):
 
 
 def get_service(packet):
-
     if packet.haslayer(TCP):
-
         port = packet[TCP].dport
+        sport = packet[TCP].sport
 
-        if port == 80:
+        if port == 502 or sport == 502:
+            return "modbus"
+
+        if port == 1883 or sport == 1883:
+            return "mqtt"
+
+        if port == 80 or sport == 80:
             return "http"
 
-        if port == 443:
+        if port == 443 or sport == 443:
             return "http_443"
 
-        if port == 21:
+        if port == 21 or sport == 21:
             return "ftp"
 
-        if port == 22:
+        if port == 22 or sport == 22:
             return "ssh"
 
-        if port == 23:
+        if port == 23 or sport == 23:
             return "telnet"
 
-        if port == 25:
+        if port == 25 or sport == 25:
             return "smtp"
 
-        if port == 53:
+        if port == 53 or sport == 53:
             return "domain"
 
     if packet.haslayer(UDP):
-
         port = packet[UDP].dport
+        sport = packet[UDP].sport
 
-        if port == 53:
+        if port == 502 or sport == 502:
+            return "modbus"
+
+        if port == 53 or sport == 53:
             return "domain_u"
 
     return "other"

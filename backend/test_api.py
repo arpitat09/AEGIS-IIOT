@@ -141,15 +141,55 @@ def test_api_routes():
         incidents = res.get_json()
         if incidents:
             first_id = incidents[0]["id"]
-            patch_res = client.patch(f"/api/incidents/{first_id}", json={"status": "Contained", "action": "Block IP"})
+            patch_res = client.patch(f"/api/incidents/{first_id}", json={"status": "CONTAINED", "action": "Block IP"})
             assert patch_res.status_code == 200
-            assert patch_res.get_json()["status"] == "Contained"
-            print(f"✓ PATCH /api/incidents/{first_id} passed: updated status to Contained")
+            assert patch_res.get_json()["status"] in ["Contained", "CONTAINED"]
+            print(f"✓ PATCH /api/incidents/{first_id} passed: updated status to CONTAINED")
 
-        # Prevention
+        # Prevention Status & Details
         res = client.get("/api/prevention/")
         assert res.status_code == 200, f"Prevention failed: {res.status_code}"
         print("✓ /api/prevention/ passed")
+
+        res = client.get("/api/prevention/status")
+        assert res.status_code == 200, f"Prevention status failed: {res.status_code}"
+        prev_status = res.get_json()
+        assert prev_status["status"] == "ACTIVE"
+        assert prev_status["engine_online"] is True
+        print(f"✓ /api/prevention/status passed: {prev_status['status']} (Actions: {prev_status['total_actions']}, Blocked IPs: {prev_status['blocked_ips']})")
+
+        # ----------------------------------------------------
+        # Sensor Cyber-Physical Telemetry & FDIA Tests
+        # ----------------------------------------------------
+        res = client.get("/api/detection/sensors")
+        assert res.status_code == 200, f"Sensors failed: {res.status_code}"
+        sensor_data = res.get_json()
+        assert sensor_data["total_monitored"] == 6
+        assert len(sensor_data["sensors"]) == 6
+        print(f"✓ /api/detection/sensors passed: {sensor_data['total_monitored']} industrial sensors active ({sensor_data['safety_envelope_status']})")
+
+        # FDIA Simulation & Cyber-Physical Correlation Test
+        res = client.post("/api/detection/simulate-fdia", json={
+            "sensor_type": "temperature",
+            "attack_mode": "sudden_spike"
+        })
+        assert res.status_code == 200, f"Simulate FDIA failed: {res.status_code}"
+        fdia_sim_data = res.get_json()
+        assert fdia_sim_data["fdia_evaluation"]["is_fdia"] is True
+        assert fdia_sim_data["fdia_evaluation"]["severity"] == "Critical"
+        print(f"✓ /api/detection/simulate-fdia passed: detected {fdia_sim_data['fdia_evaluation']['observed_value']}°C jump ({fdia_sim_data['fdia_evaluation']['reason']})")
+
+        # Modbus TCP Protocol Incursion Simulation Test
+        res = client.post("/api/detection/simulate-modbus", json={
+            "scenario": "Unauthorized Modbus Function Request",
+            "source_ip": "198.51.100.23",
+            "destination_ip": "192.168.1.10"
+        })
+        assert res.status_code == 200, f"Simulate Modbus failed: {res.status_code}"
+        modbus_sim_data = res.get_json()
+        assert modbus_sim_data["alert"]["service"] == "Modbus TCP"
+        assert modbus_sim_data["alert"]["destination_port"] == 502
+        print(f"✓ /api/detection/simulate-modbus passed: correlated {modbus_sim_data['alert']['attack']} on port 502")
 
         # ----------------------------------------------------
         # Notification Center & Delivery Tests

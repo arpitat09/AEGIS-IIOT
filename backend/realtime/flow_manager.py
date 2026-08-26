@@ -380,7 +380,10 @@ def process_flow(flow):
                 flow["protocol"],
 
             "service":
-                flow["service"],
+                "Modbus TCP" if (flow["service"] == "modbus" or flow["dst_port"] == 502 or flow["src_port"] == 502) else flow["service"],
+
+            "industrial_protocol":
+                "Modbus" if (flow["service"] == "modbus" or flow["dst_port"] == 502 or flow["src_port"] == 502) else None,
 
             "packet_count":
                 packet_count,

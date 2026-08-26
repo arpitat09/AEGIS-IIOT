@@ -46,7 +46,7 @@ def generate_ai_incident_summary(attack_type, severity, risk_score, source_ip, d
     )
     return summary
 
-def generate_ai_recommended_response(attack_type, severity, affected_asset, source_ip):
+def generate_ai_recommended_response(attack_type, severity, affected_asset, source_ip="adversary IP"):
     """Generates structured tactical response playbook."""
     if severity == "Critical":
         return (

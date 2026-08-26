@@ -38,46 +38,90 @@ def run_synthetic_traffic_generator():
         (1883, "mqtt", "TCP"),
     ]
 
+    modbus_scenarios = [
+        "Unauthorized Modbus Function Request",
+        "Suspicious Modbus Register Access",
+        "Excessive Modbus Requests",
+        "Modbus Reconnaissance",
+        "PLC Communication Anomaly",
+        "Abnormal Command Frequency",
+        "Suspicious Write Operation Pattern",
+        "Unauthorized Industrial Device Access"
+    ]
+
     while True:
         try:
-            # 80% normal traffic, 20% simulated threat/anomalous flow
+            # 75% normal industrial traffic, 25% simulated threat/anomalous flow
             is_attack = random.random() < 0.25
 
             if is_attack:
-                attack_type = random.choice(["DoS", "Probe", "R2L", "U2R"])
+                attack_category = random.choice(["NETWORK", "MODBUS_INDUSTRIAL", "FDIA_CYBER_PHYSICAL"])
                 src_ip = random.choice(attack_ips)
                 dst_ip = random.choice(target_servers)
 
-                if attack_type == "DoS":
-                    # SYN flood / high volume burst
-                    port, _, proto = (80, "http", "TCP")
-                    for _ in range(random.randint(15, 30)):
-                        pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=port, flags="S")
+                if attack_category == "MODBUS_INDUSTRIAL":
+                    # Industrial Protocol Modbus TCP Attack Scenario (Port 502)
+                    modbus_attack = random.choice(modbus_scenarios)
+                    port = 502
+                    # Send burst to port 502
+                    burst = random.randint(8, 20) if "Excessive" in modbus_attack else random.randint(3, 7)
+                    for _ in range(burst):
+                        pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=port, flags="PA")
                         process_packet(pkt)
                         time.sleep(0.01)
 
-                elif attack_type == "Probe":
-                    # Port scan / sweep
-                    for test_port in random.sample([21, 22, 23, 80, 443, 502, 1883, 8080], 4):
-                        pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=test_port, flags="S")
-                        process_packet(pkt)
-                        time.sleep(0.02)
+                elif attack_category == "FDIA_CYBER_PHYSICAL":
+                    # Cyber-Physical False Data Injection Attack
+                    from services.fdia_detector import inject_simulated_fdia_attack
+                    from services.industrial_correlation_engine import correlate_industrial_cyber_physical_event
+                    
+                    stype = random.choice(["temperature", "pressure", "vibration", "flow_rate"])
+                    fdia_res = inject_simulated_fdia_attack(sensor_type=stype, attack_mode="sudden_spike")
+                    
+                    # Generate small associated network telemetry trigger on PLC
+                    pkt = IP(src=src_ip, dst="192.168.1.10") / TCP(sport=random.randint(1024, 65535), dport=502, flags="PA")
+                    process_packet(pkt)
 
-                elif attack_type == "R2L":
-                    # Repeated unauthorized access attempt
-                    pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=22, flags="PA")
-                    for _ in range(random.randint(5, 10)):
-                        process_packet(pkt)
-                        time.sleep(0.05)
+                    # Trigger correlation if FDIA detected
+                    if fdia_res.get("is_fdia"):
+                        correlate_industrial_cyber_physical_event(
+                            fdia_event=fdia_res,
+                            modbus_metadata={"source_ip": src_ip, "destination_ip": "192.168.1.10", "attack": "FDIA + Unauthorized Modbus Write"}
+                        )
 
-                else: # U2R
-                    pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=23, flags="PA")
-                    for _ in range(random.randint(3, 8)):
-                        process_packet(pkt)
-                        time.sleep(0.05)
+                else: # NETWORK ATTACK
+                    attack_type = random.choice(["DoS", "Probe", "R2L", "U2R"])
+
+                    if attack_type == "DoS":
+                        # SYN flood
+                        port = 80
+                        for _ in range(random.randint(15, 30)):
+                            pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=port, flags="S")
+                            process_packet(pkt)
+                            time.sleep(0.01)
+
+                    elif attack_type == "Probe":
+                        # Port scan across industrial & IT ports
+                        for test_port in random.sample([21, 22, 80, 443, 502, 1883, 8080], 4):
+                            pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=test_port, flags="S")
+                            process_packet(pkt)
+                            time.sleep(0.02)
+
+                    elif attack_type == "R2L":
+                        # Unauthorized access attempt
+                        pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=22, flags="PA")
+                        for _ in range(random.randint(5, 10)):
+                            process_packet(pkt)
+                            time.sleep(0.05)
+
+                    else: # U2R
+                        pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=23, flags="PA")
+                        for _ in range(random.randint(3, 8)):
+                            process_packet(pkt)
+                            time.sleep(0.05)
 
             else:
-                # Normal Industrial IoT Communication
+                # Normal Industrial IoT & Modbus Communication
                 src_ip = random.choice(device_ips)
                 dst_ip = random.choice(target_servers)
                 port, _, proto = random.choice(services_ports)

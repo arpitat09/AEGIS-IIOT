@@ -152,6 +152,62 @@ def get_dashboard_live():
         for ip, name, status, risk in device_ips
     ]
 
+    # 10. Industrial Security Overview Telemetry
+    modbus_count = Alert.query.filter(
+        (Alert.service.ilike("%modbus%")) | (Alert.destination_port == 502) | (Alert.source_port == 502)
+    ).count()
+
+    fdia_count = Alert.query.filter(
+        Alert.attack.ilike("%fdia%") | Alert.attack.ilike("%false data%") | Alert.attack.ilike("%sensor%")
+    ).count()
+
+    from database.schema import Asset, Incident
+    active_assets_count = Asset.query.count() or 7
+    cyber_physical_incidents_count = Incident.query.filter(
+        Incident.attack_type.ilike("%fdia%") | Incident.attack_type.ilike("%modbus%") | Incident.attack_type.ilike("%cyber-physical%")
+    ).count()
+
+    # Attack Taxonomy Classification
+    network_atks = db.session.query(func.count(Alert.id)).filter(
+        Alert.attack.in_(["DoS", "Probe", "R2L", "U2R", "Port Scan", "SYN Flood", "Brute Force"])
+    ).scalar() or 0
+
+    industrial_atks = db.session.query(func.count(Alert.id)).filter(
+        Alert.attack.ilike("%modbus%") | Alert.attack.ilike("%plc%") | Alert.attack.ilike("%command%")
+    ).scalar() or 0
+
+    cyber_physical_atks = fdia_count
+
+    top_target = (
+        db.session.query(Alert.destination_ip, func.count(Alert.id))
+        .filter(Alert.attack != "Normal")
+        .group_by(Alert.destination_ip)
+        .order_by(func.count(Alert.id).desc())
+        .first()
+    )
+    most_targeted_ip = top_target[0] if top_target else "192.168.1.10"
+    top_asset = Asset.query.filter_by(ip_address=most_targeted_ip).first()
+    most_targeted_name = top_asset.name if top_asset else f"Industrial PLC ({most_targeted_ip})"
+
+    industrial_overview = {
+        "prevention_status": "ACTIVE",
+        "prevention_indicator": "PREVENTION ENGINE ONLINE",
+        "modbus_monitoring": "ACTIVE",
+        "modbus_traffic_count": modbus_count,
+        "active_industrial_assets": active_assets_count,
+        "fdia_alerts_count": fdia_count,
+        "cyber_physical_incidents_count": cyber_physical_incidents_count,
+        "sensor_security": "ACTIVE",
+        "most_targeted_asset": most_targeted_name,
+        "most_targeted_ip": most_targeted_ip,
+        "industrial_risk_level": "CRITICAL" if critical_alerts > 0 else "HIGH" if high_alerts > 0 else "MEDIUM",
+        "attack_taxonomy": {
+            "network_attacks": network_atks,
+            "industrial_attacks": industrial_atks,
+            "cyber_physical_attacks": cyber_physical_atks
+        }
+    }
+
     return jsonify({
         "generated_at": now.isoformat() + "Z",
         "summary": {
@@ -182,5 +238,6 @@ def get_dashboard_live():
         "traffic_chart": traffic_chart,
         "incidents": incidents,
         "network_status": network_status,
-        "devices": devices
+        "devices": devices,
+        "industrial_overview": industrial_overview
     })
