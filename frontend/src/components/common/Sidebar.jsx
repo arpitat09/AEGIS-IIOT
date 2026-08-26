@@ -10,6 +10,10 @@ import {
   Public,
   Policy,
   Logout,
+  AutoAwesome,
+  PrecisionManufacturing,
+  NotificationsActive,
+  Hub,
 } from "@mui/icons-material";
 
 import {
@@ -47,6 +51,31 @@ export default function Sidebar({ mobileOpen = false, handleDrawerToggle }) {
       path: "/dashboard",
     },
     {
+      text: "Incident Response",
+      icon: <Warning fontSize="small" />,
+      path: "/incidents",
+    },
+    {
+      text: "AI SOC Copilot",
+      icon: <AutoAwesome fontSize="small" sx={{ color: "#00E5A8" }} />,
+      path: "/ai-copilot",
+    },
+    {
+      text: "Asset Inventory",
+      icon: <PrecisionManufacturing fontSize="small" />,
+      path: "/assets",
+    },
+    {
+      text: "Notification Rules",
+      icon: <NotificationsActive fontSize="small" />,
+      path: "/notification-rules",
+    },
+    {
+      text: "SIEM Integrations",
+      icon: <Hub fontSize="small" />,
+      path: "/integrations",
+    },
+    {
       text: "Live Monitoring",
       icon: <Radar fontSize="small" />,
       path: "/monitoring",
@@ -57,22 +86,17 @@ export default function Sidebar({ mobileOpen = false, handleDrawerToggle }) {
       path: "/threat-intelligence",
     },
     {
-      text: "Incident Response",
-      icon: <Warning fontSize="small" />,
-      path: "/incidents",
-    },
-    {
       text: "Prevention",
       icon: <Shield fontSize="small" />,
       path: "/prevention",
     },
     {
-      text: "Analytics",
+      text: "Analytics & XAI",
       icon: <Analytics fontSize="small" />,
       path: "/analytics",
     },
     {
-      text: "Reports",
+      text: "Reports & Forensics",
       icon: <Description fontSize="small" />,
       path: "/reports",
     },

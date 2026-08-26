@@ -16,6 +16,10 @@ import Reports from "../pages/Reports";
 import Architecture from "../pages/Architecture";
 import Settings from "../pages/Settings";
 import AuditLogs from "../pages/AuditLogs";
+import AiCopilot from "../pages/AiCopilot";
+import AssetInventory from "../pages/AssetInventory";
+import NotificationRules from "../pages/NotificationRules";
+import Integrations from "../pages/Integrations";
 import NotFound from "../pages/NotFound";
 
 import { useAuth } from "../context/AuthContext";
@@ -58,6 +62,10 @@ export default function AppRoutes() {
         <Route path="/monitoring" element={<Monitoring />} />
         <Route path="/threat-intelligence" element={<ThreatIntelligence />} />
         <Route path="/incidents" element={<Incidents />} />
+        <Route path="/ai-copilot" element={<AiCopilot />} />
+        <Route path="/assets" element={<AssetInventory />} />
+        <Route path="/notification-rules" element={<NotificationRules />} />
+        <Route path="/integrations" element={<Integrations />} />
         <Route path="/prevention" element={<Prevention />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/reports" element={<Reports />} />

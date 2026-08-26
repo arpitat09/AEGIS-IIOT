@@ -151,6 +151,62 @@ def test_api_routes():
         assert res.status_code == 200, f"Prevention failed: {res.status_code}"
         print("✓ /api/prevention/ passed")
 
+        # ----------------------------------------------------
+        # Notification Center & Delivery Tests
+        # ----------------------------------------------------
+        res = client.get("/api/notifications")
+        assert res.status_code == 200, f"Notifications failed: {res.status_code}"
+        notifs = res.get_json()
+        print(f"✓ /api/notifications passed: retrieved {len(notifs)} notifications")
+
+        res = client.get("/api/notifications/unread-count")
+        assert res.status_code == 200, f"Unread count failed: {res.status_code}"
+        cnt_data = res.get_json()
+        assert "unread_count" in cnt_data
+        print(f"✓ /api/notifications/unread-count passed: {cnt_data['unread_count']} unread, {cnt_data['critical_count']} critical")
+
+        # ----------------------------------------------------
+        # Notification Rules Engine Tests
+        # ----------------------------------------------------
+        res = client.get("/api/notification-rules")
+        assert res.status_code == 200, f"Rules failed: {res.status_code}"
+        rules = res.get_json()
+        assert len(rules) >= 4, f"Expected >= 4 default rules, got {len(rules)}"
+        print(f"✓ /api/notification-rules passed: {len(rules)} active dispatch policies")
+
+        # ----------------------------------------------------
+        # Industrial IoT Asset Inventory Tests
+        # ----------------------------------------------------
+        res = client.get("/api/assets")
+        assert res.status_code == 200, f"Assets failed: {res.status_code}"
+        assets = res.get_json()
+        assert len(assets) >= 7, f"Expected >= 7 industrial assets, got {len(assets)}"
+        print(f"✓ /api/assets passed: {len(assets)} registered industrial control assets")
+
+        # ----------------------------------------------------
+        # AI SOC Copilot & Security Insights Tests
+        # ----------------------------------------------------
+        res = client.post("/api/ai/copilot", json={"query": "What happened in the last hour?"})
+        assert res.status_code == 200, f"Copilot failed: {res.status_code}"
+        copilot_data = res.get_json()
+        assert "answer" in copilot_data and len(copilot_data["answer"]) > 20
+        print(f"✓ /api/ai/copilot passed: successfully answered natural language query with live data")
+
+        res = client.get("/api/ai/insights")
+        assert res.status_code == 200, f"AI insights failed: {res.status_code}"
+        insights_data = res.get_json()
+        assert "key_insights" in insights_data and len(insights_data["key_insights"]) > 0
+        print(f"✓ /api/ai/insights passed: generated {len(insights_data['key_insights'])} trend insights")
+
+        # ----------------------------------------------------
+        # Integrations Status Tests
+        # ----------------------------------------------------
+        res = client.get("/api/integrations/status")
+        assert res.status_code == 200, f"Integrations status failed: {res.status_code}"
+        integ_data = res.get_json()
+        assert "in_app" in integ_data and "email" in integ_data and "slack" in integ_data and "sms" in integ_data
+        print(f"✓ /api/integrations/status passed: In-App, Email, Slack, SMS channel status online")
+
         print("\n=======================================================")
         print("ALL AEGIS-IIOT SOC BACKEND APIS & SECURITY TESTS PASSED")
         print("=======================================================")

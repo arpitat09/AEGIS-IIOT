@@ -305,10 +305,33 @@ def run_prediction(X, metadata=None):
 
 
     # ---------------------------------------
-    # Commit Alerts
+    # Commit Alerts & Trigger Correlation Engine
     # ---------------------------------------
-
     db.session.commit()
+
+    # Correlate into Incidents and evaluate notification rules
+    try:
+        from services.alert_correlation_service import correlate_alert_to_incident
+        for alert_obj in [a for a in db.session.new if isinstance(a, Alert)] or []:
+            pass
+    except Exception:
+        pass
+
+    try:
+        from services.alert_correlation_service import correlate_alert_to_incident
+        # Query recently saved alerts from this batch if they are threats
+        for r in results:
+            if r.get("attack") and r.get("attack") != "Normal":
+                # Find matching alert
+                latest_alert = Alert.query.filter_by(
+                    attack=r.get("attack"),
+                    source_ip=r.get("source_ip"),
+                    destination_ip=r.get("destination_ip")
+                ).order_by(Alert.id.desc()).first()
+                if latest_alert:
+                    correlate_alert_to_incident(latest_alert)
+    except Exception as e:
+        print(f"[Correlation Pipeline Warning]: {e}")
 
     try:
         from routes.events import broadcast_event

@@ -279,6 +279,140 @@ export const apiService = {
 
 
   // ========================================
+  // NOTIFICATIONS (REAL-TIME IN-APP & MULTI-CHANNEL)
+  // ========================================
+
+  getNotifications: async (params = {}) => {
+    const response = await api.get("/api/notifications", { params });
+    return response.data;
+  },
+
+  getUnreadNotificationCount: async () => {
+    const response = await api.get("/api/notifications/unread-count");
+    return response.data;
+  },
+
+  markNotificationRead: async (id) => {
+    const response = await api.post(`/api/notifications/${id}/read`);
+    return response.data;
+  },
+
+  markAllNotificationsRead: async () => {
+    const response = await api.post("/api/notifications/read-all");
+    return response.data;
+  },
+
+  acknowledgeNotification: async (id, data = {}) => {
+    const response = await api.post(`/api/notifications/${id}/acknowledge`, data);
+    return response.data;
+  },
+
+  getNotificationDeliveries: async (params = {}) => {
+    const response = await api.get("/api/notifications/deliveries", { params });
+    return response.data;
+  },
+
+  // ========================================
+  // NOTIFICATION RULES ENGINE
+  // ========================================
+
+  getNotificationRules: async () => {
+    const response = await api.get("/api/notification-rules");
+    return response.data;
+  },
+
+  createNotificationRule: async (data) => {
+    const response = await api.post("/api/notification-rules", data);
+    return response.data;
+  },
+
+  updateNotificationRule: async (id, data) => {
+    const response = await api.put(`/api/notification-rules/${id}`, data);
+    return response.data;
+  },
+
+  deleteNotificationRule: async (id) => {
+    const response = await api.delete(`/api/notification-rules/${id}`);
+    return response.data;
+  },
+
+  // ========================================
+  // INDUSTRIAL IOT ASSET INVENTORY
+  // ========================================
+
+  getAssets: async () => {
+    const response = await api.get("/api/assets");
+    return response.data;
+  },
+
+  createAsset: async (data) => {
+    const response = await api.post("/api/assets", data);
+    return response.data;
+  },
+
+  updateAsset: async (id, data) => {
+    const response = await api.put(`/api/assets/${id}`, data);
+    return response.data;
+  },
+
+  // ========================================
+  // AI SOC COPILOT & INSIGHTS
+  // ========================================
+
+  queryAiCopilot: async (query, role = "SECURITY_ANALYST") => {
+    const response = await api.post("/api/ai/copilot", { query, role });
+    return response.data;
+  },
+
+  getAiInsights: async () => {
+    const response = await api.get("/api/ai/insights");
+    return response.data;
+  },
+
+  regenerateAiSummary: async (incidentId) => {
+    const response = await api.post(`/api/ai/incident-summary/${incidentId}`);
+    return response.data;
+  },
+
+  // ========================================
+  // INTEGRATIONS STATUS
+  // ========================================
+
+  getIntegrationsStatus: async () => {
+    const response = await api.get("/api/integrations/status");
+    return response.data;
+  },
+
+  testIntegration: async (data) => {
+    const response = await api.post("/api/integrations/test", data);
+    return response.data;
+  },
+
+  // ========================================
+  // INCIDENT MANAGEMENT ACTIONS
+  // ========================================
+
+  acknowledgeIncident: async (id, data = {}) => {
+    const response = await api.post(`/api/incidents/${id}/acknowledge`, data);
+    return response.data;
+  },
+
+  updateIncidentStatus: async (id, data) => {
+    const response = await api.post(`/api/incidents/${id}/status`, data);
+    return response.data;
+  },
+
+  assignIncident: async (id, data) => {
+    const response = await api.post(`/api/incidents/${id}/assign`, data);
+    return response.data;
+  },
+
+  containIncident: async (id, data) => {
+    const response = await api.post(`/api/incidents/${id}/contain`, data);
+    return response.data;
+  },
+
+  // ========================================
   // HEALTH CHECK
   // ========================================
 
