@@ -132,6 +132,29 @@ export default function Dashboard() {
           >
             Refresh
           </Button>
+
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={async () => {
+              if (window.confirm("Are you sure you want to reset telemetry to start a fresh live session?")) {
+                try {
+                  await apiService.resetTelemetry();
+                  fetchData();
+                } catch (e) {
+                  console.error("Reset error:", e);
+                }
+              }
+            }}
+            sx={{
+              borderColor: "rgba(239, 68, 68, 0.3)",
+              color: "#F87171",
+              fontSize: "0.75rem",
+              "&:hover": { borderColor: "#EF4444", color: "#EF4444", bgcolor: "rgba(239, 68, 68, 0.08)" },
+            }}
+          >
+            Reset Session
+          </Button>
         </Stack>
       </Box>
 

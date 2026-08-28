@@ -127,3 +127,24 @@ def get_threat_score_route():
     Dedicated Threat Score Intelligence API.
     """
     return jsonify(calculate_threat_score())
+
+
+@system_bp.route("/reset-telemetry", methods=["POST"])
+def reset_telemetry():
+    """
+    Resets old accumulated alerts and incidents, starting a fresh clean live session.
+    """
+    try:
+        from database.schema import Alert, Incident, Notification
+        Notification.query.delete()
+        Alert.query.delete()
+        Incident.query.delete()
+        db.session.commit()
+        return jsonify({
+            "status": "success",
+            "message": "Telemetry database successfully reset to fresh live state."
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+

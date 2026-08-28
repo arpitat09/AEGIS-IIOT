@@ -198,16 +198,26 @@ with app.app_context():
 # START REAL-TIME PACKET CAPTURE
 # ==================================================
 
+_capture_started = False
+_capture_lock = threading.Lock()
+
 def start_realtime_capture():
-    print("Starting AEGIS-IIOT real-time packet capture...")
-    capture_thread = threading.Thread(
-        target=start_capture,
-        args=(app,),
-        daemon=True,
-        name="AEGIS-Packet-Capture"
-    )
-    capture_thread.start()
-    print("AEGIS-IIOT real-time capture thread started")
+    global _capture_started
+    with _capture_lock:
+        if not _capture_started:
+            print("Starting AEGIS-IIOT real-time packet capture...")
+            capture_thread = threading.Thread(
+                target=start_capture,
+                args=(app,),
+                daemon=True,
+                name="AEGIS-Packet-Capture"
+            )
+            capture_thread.start()
+            _capture_started = True
+            print("AEGIS-IIOT real-time capture thread started successfully")
+
+# Automatically launch real-time capture engine for all WSGI servers (Gunicorn, Render, etc.)
+start_realtime_capture()
 
 
 # ==================================================
@@ -216,16 +226,9 @@ def start_realtime_capture():
 
 if __name__ == "__main__":
 
-    start_realtime_capture()
-
-
     app.run(
-
         host="0.0.0.0",
-
         port=5000,
-
         debug=False,
-
         use_reloader=False
     )

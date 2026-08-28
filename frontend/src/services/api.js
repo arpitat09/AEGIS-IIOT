@@ -437,11 +437,16 @@ export const apiService = {
   },
 
   // ========================================
-  // HEALTH CHECK
+  // HEALTH CHECK & SYSTEM RESET
   // ========================================
 
   getHealth: async () => {
     const response = await api.get("/api/health");
+    return response.data;
+  },
+
+  resetTelemetry: async () => {
+    const response = await api.post("/api/system/reset-telemetry");
     return response.data;
   },
 };

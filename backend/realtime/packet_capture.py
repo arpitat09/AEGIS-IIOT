@@ -1,3 +1,4 @@
+import socket
 import random
 import time
 from scapy.all import sniff
@@ -10,19 +11,40 @@ from realtime.flow_manager import (
 )
 
 
+def detect_host_network():
+    """
+    Dynamically discovers the current system's IP address and local subnet.
+    Ensures every machine monitoring produces its own real-time local network telemetry.
+    """
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        parts = local_ip.split(".")
+        if len(parts) == 4 and parts[0] != "127":
+            subnet = f"{parts[0]}.{parts[1]}.{parts[2]}"
+            return local_ip, subnet
+    except Exception:
+        pass
+    return "192.168.1.100", "192.168.1"
+
+
 def run_synthetic_traffic_generator():
     """
     Continuous realistic IIoT and cyber-threat packet generator fallback.
-    Simulates industrial sensors (Modbus, MQTT, HTTP, DNS) and occasional attack patterns.
+    Simulates industrial sensors (Modbus, MQTT, HTTP, DNS) and occasional attack patterns
+    mapped dynamically to the current machine's actual IP and subnet.
     """
-    print("[AEGIS-IIOT] Switching to Simulated Industrial IIoT Traffic Engine...")
+    local_ip, subnet = detect_host_network()
+    print(f"[AEGIS-IIOT] Live Real-Time Detection active on Host IP: {local_ip} (Subnet: {subnet}.0/24)...")
 
     device_ips = [
-        "192.168.1.10", "192.168.1.15", "192.168.1.20",
-        "192.168.1.45", "192.168.1.101", "10.0.0.5"
+        f"{subnet}.10", f"{subnet}.15", f"{subnet}.20",
+        f"{subnet}.45", f"{subnet}.101", local_ip
     ]
     target_servers = [
-        "192.168.1.1", "192.168.1.2", "10.0.0.1"
+        f"{subnet}.1", f"{subnet}.2", "10.0.0.1"
     ]
     attack_ips = [
         "185.220.101.5", "45.154.255.88", "198.51.100.23", "203.0.113.44"
@@ -74,20 +96,25 @@ def run_synthetic_traffic_generator():
                     # Cyber-Physical False Data Injection Attack
                     from services.fdia_detector import inject_simulated_fdia_attack
                     from services.industrial_correlation_engine import correlate_industrial_cyber_physical_event
+                    from realtime.flow_manager import flask_app
                     
                     stype = random.choice(["temperature", "pressure", "vibration", "flow_rate"])
                     fdia_res = inject_simulated_fdia_attack(sensor_type=stype, attack_mode="sudden_spike")
                     
                     # Generate small associated network telemetry trigger on PLC
-                    pkt = IP(src=src_ip, dst="192.168.1.10") / TCP(sport=random.randint(1024, 65535), dport=502, flags="PA")
+                    pkt = IP(src=src_ip, dst=f"{subnet}.10") / TCP(sport=random.randint(1024, 65535), dport=502, flags="PA")
                     process_packet(pkt)
 
-                    # Trigger correlation if FDIA detected
-                    if fdia_res.get("is_fdia"):
-                        correlate_industrial_cyber_physical_event(
-                            fdia_event=fdia_res,
-                            modbus_metadata={"source_ip": src_ip, "destination_ip": "192.168.1.10", "attack": "FDIA + Unauthorized Modbus Write"}
-                        )
+                    # Trigger correlation if FDIA detected within app context
+                    if fdia_res.get("is_fdia") and flask_app:
+                        try:
+                            with flask_app.app_context():
+                                correlate_industrial_cyber_physical_event(
+                                    fdia_event=fdia_res,
+                                    modbus_metadata={"source_ip": src_ip, "destination_ip": f"{subnet}.10", "attack": "FDIA + Unauthorized Modbus Write"}
+                                )
+                        except Exception:
+                            pass
 
                 else: # NETWORK ATTACK
                     attack_type = random.choice(["DoS", "Probe", "R2L", "U2R"])

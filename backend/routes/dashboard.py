@@ -133,13 +133,16 @@ def get_dashboard_live():
     }
 
     # 9. Device Telemetry Inventory
+    from realtime.packet_capture import detect_host_network
+    local_ip, subnet = detect_host_network()
+
     device_ips = [
-        ("192.168.1.10", "PLC Industrial Controller", "Online", 25),
-        ("192.168.1.15", "Modbus Sensor Gateway", "Online", 15),
-        ("192.168.1.20", "SCADA HMI Terminal", "Online", 40),
-        ("192.168.1.45", "IIoT Power Monitor", "Online", 20),
-        ("192.168.1.101", "Robotic Arm Controller", "Online", 35),
-        ("10.0.0.5", "Edge Telemetry Node", "Online", 10),
+        (f"{subnet}.10", "PLC Industrial Controller", "Online", 25),
+        (f"{subnet}.15", "Modbus Sensor Gateway", "Online", 15),
+        (f"{subnet}.20", "SCADA HMI Terminal", "Online", 40),
+        (f"{subnet}.45", "IIoT Power Monitor", "Online", 20),
+        (f"{subnet}.101", "Robotic Arm Controller", "Online", 35),
+        (local_ip, "Local SOC Monitoring Node", "Online", 10),
     ]
     devices = [
         {
