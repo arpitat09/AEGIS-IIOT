@@ -24,6 +24,16 @@ def monitoring_home():
     })
 
 
+@monitoring_bp.route("/capture-status", methods=["GET"])
+def get_monitoring_capture_status():
+    """
+    Explicitly reports whether the engine is sniffing genuine live network wire traffic
+    or operating in controlled simulation mode.
+    """
+    from realtime.packet_capture import get_capture_status
+    return jsonify(get_capture_status())
+
+
 # -----------------------------------------
 # Get All Recent Alerts
 # -----------------------------------------

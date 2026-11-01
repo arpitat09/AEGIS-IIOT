@@ -11,6 +11,40 @@ from realtime.flow_manager import (
 )
 
 
+_capture_state = {
+    "mode": "STARTING",
+    "interface": "default",
+    "has_raw_socket_permission": False,
+    "packets_captured": 0,
+    "packets_processed": 0,
+    "dropped_packets": 0,
+    "last_error": None,
+    "start_time": time.time(),
+}
+
+
+def get_capture_status():
+    """
+    Returns explicit telemetry on whether real wire sniffing or controlled simulation is active.
+    """
+    uptime = time.time() - _capture_state["start_time"]
+    rate = round(_capture_state["packets_captured"] / max(uptime, 1.0), 2)
+    return {
+        "status": "RUNNING",
+        "mode": _capture_state["mode"],
+        "is_live_wire": _capture_state["mode"] == "LIVE_WIRE_SNIFFING",
+        "is_simulation": _capture_state["mode"] == "CONTROLLED_SIMULATION",
+        "interface": _capture_state["interface"],
+        "has_permission": _capture_state["has_raw_socket_permission"],
+        "packets_captured": _capture_state["packets_captured"],
+        "packets_processed": _capture_state["packets_processed"],
+        "packet_rate_per_sec": rate,
+        "dropped_packets": _capture_state["dropped_packets"],
+        "last_error": _capture_state["last_error"],
+        "uptime_seconds": int(uptime)
+    }
+
+
 def detect_host_network():
     """
     Dynamically discovers the current system's IP address and local subnet.
@@ -36,6 +70,14 @@ def run_synthetic_traffic_generator():
     Simulates industrial sensors (Modbus, MQTT, HTTP, DNS) and occasional attack patterns
     mapped dynamically to the current machine's actual IP and subnet.
     """
+    _capture_state["mode"] = "CONTROLLED_SIMULATION"
+    _capture_state["has_raw_socket_permission"] = False
+
+    def send_pkt(pkt):
+        _capture_state["packets_captured"] += 1
+        process_packet(pkt)
+        _capture_state["packets_processed"] += 1
+
     local_ip, subnet = detect_host_network()
     print(f"[AEGIS-IIOT] Live Real-Time Detection active on Host IP: {local_ip} (Subnet: {subnet}.0/24)...")
 
@@ -89,7 +131,7 @@ def run_synthetic_traffic_generator():
                     burst = random.randint(8, 20) if "Excessive" in modbus_attack else random.randint(3, 7)
                     for _ in range(burst):
                         pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=port, flags="PA")
-                        process_packet(pkt)
+                        send_pkt(pkt)
                         time.sleep(0.01)
 
                 elif attack_category == "FDIA_CYBER_PHYSICAL":
@@ -103,7 +145,7 @@ def run_synthetic_traffic_generator():
                     
                     # Generate small associated network telemetry trigger on PLC
                     pkt = IP(src=src_ip, dst=f"{subnet}.10") / TCP(sport=random.randint(1024, 65535), dport=502, flags="PA")
-                    process_packet(pkt)
+                    send_pkt(pkt)
 
                     # Trigger correlation if FDIA detected within app context
                     if fdia_res.get("is_fdia") and flask_app:
@@ -124,27 +166,27 @@ def run_synthetic_traffic_generator():
                         port = 80
                         for _ in range(random.randint(15, 30)):
                             pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=port, flags="S")
-                            process_packet(pkt)
+                            send_pkt(pkt)
                             time.sleep(0.01)
 
                     elif attack_type == "Probe":
                         # Port scan across industrial & IT ports
                         for test_port in random.sample([21, 22, 80, 443, 502, 1883, 8080], 4):
                             pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=test_port, flags="S")
-                            process_packet(pkt)
+                            send_pkt(pkt)
                             time.sleep(0.02)
 
                     elif attack_type == "R2L":
                         # Unauthorized access attempt
                         pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=22, flags="PA")
                         for _ in range(random.randint(5, 10)):
-                            process_packet(pkt)
+                            send_pkt(pkt)
                             time.sleep(0.05)
 
                     else: # U2R
                         pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=random.randint(1024, 65535), dport=23, flags="PA")
                         for _ in range(random.randint(3, 8)):
-                            process_packet(pkt)
+                            send_pkt(pkt)
                             time.sleep(0.05)
 
             else:
@@ -161,7 +203,7 @@ def run_synthetic_traffic_generator():
                         pkt = IP(src=src_ip, dst=dst_ip) / TCP(sport=sport, dport=port, flags="SA")
                     else:
                         pkt = IP(src=src_ip, dst=dst_ip) / UDP(sport=sport, dport=port)
-                    process_packet(pkt)
+                    send_pkt(pkt)
                     time.sleep(0.02)
 
             time.sleep(random.uniform(0.8, 1.8))
@@ -197,11 +239,19 @@ def start_capture(app, interface=None):
 
     print("====================================")
 
+    def live_packet_handler(pkt):
+        _capture_state["packets_captured"] += 1
+        process_packet(pkt)
+        _capture_state["packets_processed"] += 1
+
     try:
+        _capture_state["interface"] = interface if interface else "default"
+        _capture_state["mode"] = "LIVE_WIRE_SNIFFING"
+        _capture_state["has_raw_socket_permission"] = True
 
         sniff(
             iface=interface,
-            prn=process_packet,
+            prn=live_packet_handler,
             store=False
         )
 
@@ -212,6 +262,9 @@ def start_capture(app, interface=None):
         print("====================================")
 
     except Exception as error:
+        _capture_state["mode"] = "CONTROLLED_SIMULATION"
+        _capture_state["has_raw_socket_permission"] = False
+        _capture_state["last_error"] = str(error)
 
         print(
             f"Real-time packet capture permission/interface notice: {error}"

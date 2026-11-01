@@ -71,7 +71,6 @@ def create_project_pdf():
     C_DARK = colors.HexColor("#1E293B")       # Body Text
     C_MUTED = colors.HexColor("#64748B")      # Subtitles
     C_ALERT = colors.HexColor("#DC2626")      # Critical Red
-    C_WARN = colors.HexColor("#D97706")       # Warning Amber
 
     # Custom Styles
     style_cover_title = ParagraphStyle(
@@ -82,29 +81,29 @@ def create_project_pdf():
         leading=28,
         textColor=C_PRIMARY,
         alignment=1,
-        spaceAfter=5
+        spaceAfter=4
     )
 
     style_cover_sub = ParagraphStyle(
         'CoverSub',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=11.5,
-        leading=15,
+        fontSize=11,
+        leading=14,
         textColor=C_CYBER,
         alignment=1,
-        spaceAfter=10
+        spaceAfter=8
     )
 
     style_h1 = ParagraphStyle(
         'Heading1_Custom',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=13,
-        leading=16,
+        fontSize=12.5,
+        leading=15.5,
         textColor=C_PRIMARY,
-        spaceBefore=10,
-        spaceAfter=4,
+        spaceBefore=8,
+        spaceAfter=3,
         keepWithNext=True
     )
 
@@ -112,10 +111,10 @@ def create_project_pdf():
         'Heading2_Custom',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=9.5,
-        leading=12.5,
+        fontSize=9.2,
+        leading=12,
         textColor=C_CYBER,
-        spaceBefore=6,
+        spaceBefore=5,
         spaceAfter=2,
         keepWithNext=True
     )
@@ -124,28 +123,28 @@ def create_project_pdf():
         'Body_Custom',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=8.2,
-        leading=11.5,
+        fontSize=8.0,
+        leading=11.2,
         textColor=C_DARK,
-        spaceAfter=4
+        spaceAfter=3
     )
 
     style_body_bold = ParagraphStyle(
         'BodyBold_Custom',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=8.2,
-        leading=11.5,
+        fontSize=8.0,
+        leading=11.2,
         textColor=C_DARK,
-        spaceAfter=4
+        spaceAfter=3
     )
 
     style_code = ParagraphStyle(
         'Code_Custom',
         parent=styles['Normal'],
         fontName='Courier',
-        fontSize=7.2,
-        leading=9,
+        fontSize=7.0,
+        leading=8.8,
         textColor=colors.HexColor("#1E293B"),
     )
 
@@ -156,7 +155,7 @@ def create_project_pdf():
     # =========================================================================
     story.append(Paragraph("AEGIS-IIOT", style_cover_title))
     story.append(Paragraph("Adaptive Cyber-Physical Defense & Incident Response for Industrial IoT", style_cover_sub))
-    story.append(Paragraph("<b>Comprehensive System Architecture, Technical Implementation & Major Project Viva Guide</b>", ParagraphStyle('SubSub', alignment=1, fontSize=9, textColor=C_MUTED, fontName='Helvetica', spaceAfter=8)))
+    story.append(Paragraph("<b>Comprehensive System Architecture, Technical Implementation & Major Project Defense Handbook</b>", ParagraphStyle('SubSub', alignment=1, fontSize=8.8, textColor=C_MUTED, fontName='Helvetica', spaceAfter=8)))
     
     meta_data = [
         [Paragraph("<b>Production Frontend:</b>", style_body), Paragraph("<font color='#0D9488'>https://aegis-iiot-frontend.vercel.app/</font>", style_body), Paragraph("<b>Status:</b>", style_body), Paragraph("<font color='#059669'><b>LIVE (Vercel)</b></font>", style_body)],
@@ -174,19 +173,19 @@ def create_project_pdf():
         ('RIGHTPADDING', (0,0), (-1,-1), 5),
     ]))
     story.append(t_meta)
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
 
     story.append(Paragraph("1. Project Executive Summary (Enterprise Overview)", style_h1))
     story.append(Paragraph(
-        "<b>AEGIS-IIOT</b> is an enterprise-grade, real-time <b>Intrusion Detection and Adaptive Prevention Platform (IDPS)</b> built specifically to protect Critical Infrastructure and Industrial IoT (IIoT) ecosystems—such as robotic assembly lines, Siemens/Schneider PLC automation controllers, SCADA master servers, and smart manufacturing plants.",
+        "<b>AEGIS-IIOT</b> is an enterprise-grade, real-time <b>Intrusion Detection and Adaptive Prevention Platform (IDPS)</b> built specifically to protect Critical Infrastructure and Industrial IoT (IIoT) ecosystems—such as robotic manufacturing lines, Siemens/Schneider PLC automation controllers, SCADA master servers, and smart power grids.",
         style_body
     ))
     story.append(Paragraph(
-        "<b>Why Traditional IT Firewalls Fail in IIoT:</b> Traditional IT security relies on signature matching (looking only for previously known viruses) and treats network packets in isolation. In operational technology (OT), machines run 24/7 using industrial fieldbus protocols like <b>Modbus TCP (Port 502)</b>. Attackers execute stealthy <b>False Data Injection Attacks (FDIA)</b> and register tampering that bypass traditional firewalls without generating standard malware signatures. Halting a physical production line via a false-positive lockout causes severe operational and financial damage.",
+        "<b>Why Traditional IT Firewalls Fail in IIoT:</b> Traditional IT security relies on signature matching (looking only for previously known viruses) and treats network packets in isolation. In operational technology (OT), machines run 24/7 using industrial fieldbus protocols like <b>Modbus TCP (Port 502)</b>. Attackers execute stealthy <b>False Data Injection Attacks (FDIA)</b> and register tampering that bypass traditional firewalls without generating standard malware signatures. Furthermore, halting a physical production line via a false-positive lockout causes catastrophic financial and physical damage.",
         style_body
     ))
     story.append(Paragraph(
-        "<b>The AEGIS-IIOT Solution:</b> AEGIS-IIOT unifies: (1) Real-time raw network wire packet capture via Scapy, (2) Specialized Modbus TCP Port 502 protocol inspection, (3) A Cyber-Physical Sensor <b>FDIA Detector</b> monitoring physical process variables (Temperature, Pressure, Flow, Vibration, RPM, Power), (4) A <b>Dual-Tier ML Engine</b> (Isolation Forest + LightGBM/XGBoost), (5) A <b>Cyber-Physical Threat Correlation Engine</b> unifying disparate alarms into single high-impact incidents within 120s sliding windows, (6) <b>Multi-Channel Notification Dispatch</b> (In-App, Email, Slack, Twilio SMS), and (7) An <b>AI SOC Copilot & Explainability Engine</b>.",
+        "<b>The AEGIS-IIOT Solution:</b> AEGIS-IIOT unifies: (1) Real-time raw network wire packet capture via Scapy with dynamic local subnet discovery, (2) Specialized Modbus TCP Port 502 protocol inspection, (3) A Cyber-Physical Sensor <b>FDIA Detector</b> monitoring physical process variables (Temperature, Pressure, Flow, Vibration, RPM, Power), (4) A <b>Dual-Tier ML Engine</b> (Isolation Forest + LightGBM/XGBoost), (5) A <b>Cyber-Physical Threat Correlation Engine</b> unifying disparate alarms into single high-impact incidents within 120s sliding windows, (6) <b>Multi-Channel Notification Dispatch</b> (In-App, Email, Slack, Twilio SMS), and (7) An <b>AI SOC Copilot & Explainability Engine (TreeSHAP)</b>.",
         style_body
     ))
     
@@ -211,7 +210,7 @@ def create_project_pdf():
     arch_layers_p2 = [
         ("Layer 1: Data Ingestion & Industrial Protocol Sniffing", 
          "<b>Diagram Components:</b> Packet Capture Module (tcpdump/Scapy), Modbus TCP Parser, Syslog/SIEM Log Collector, Message Buffer.<br/>"
-         "<b>How AEGIS-IIOT Implements This:</b> Implemented in <code>backend/realtime/packet_capture.py</code> and <code>backend/realtime/flow_manager.py</code>. Captures live Ethernet/IP and Modbus TCP (Port 502) traffic via raw sockets, tracks bidirectional flow state tuples (<code>src_ip, dst_ip, src_port, dst_port, protocol</code>), and buffers frames for asynchronous feature extraction."),
+         "<b>How AEGIS-IIOT Implements This:</b> Implemented in <code>backend/realtime/packet_capture.py</code> and <code>backend/realtime/flow_manager.py</code>. Captures live Ethernet/IP and Modbus TCP (Port 502) traffic via raw sockets with dynamic local host network discovery, tracks bidirectional flow state tuples (<code>src_ip, dst_ip, src_port, dst_port, protocol</code>), and buffers frames for asynchronous feature extraction."),
 
         ("Layer 2: Preprocessing & Industrial Feature Engineering", 
          "<b>Diagram Components:</b> Data Cleaning, Missing Value Handler, One-Hot Encoding, Feature Scaling (RobustScaler), PCA Reduction.<br/>"
@@ -247,7 +246,7 @@ def create_project_pdf():
 
         ("Storage Layer & Industrial Asset Registry",
          "<b>Diagram Components:</b> SQLite WAL Mode, SQLAlchemy ORM, Purdue Model Asset Topology, Cryptographic Audit Trail.<br/>"
-         "<b>How AEGIS-IIOT Implements This:</b> Implemented in <code>backend/database/schema.py</code> and <code>backend/services/asset_service.py</code>. SQLite with Write-Ahead Logging (WAL) ensures lock-free concurrent execution. Stores 28,000+ indexed alerts, Purdue Model industrial assets, and immutable audit logs.")
+         "<b>How AEGIS-IIOT Implements This:</b> Implemented in <code>backend/database/schema.py</code> and <code>backend/services/asset_service.py</code>. SQLite with Write-Ahead Logging (WAL) ensures lock-free concurrent execution. Stores indexed alerts, Purdue Model industrial assets, and immutable audit logs.")
     ]
 
     for title, desc in arch_layers_p3:
@@ -255,13 +254,13 @@ def create_project_pdf():
         story.append(Paragraph(desc, style_body))
         story.append(Spacer(1, 2))
 
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
     story.append(Paragraph("3. Codebase File Mapping to Architectural Blueprint", style_h1))
     story.append(Paragraph("Every component in the architecture maps cleanly to modular, enterprise code in the AEGIS-IIOT repository:", style_body))
     
     mapping_data = [
         [Paragraph("<b>Layer</b>", style_body_bold), Paragraph("<b>Diagram Module</b>", style_body_bold), Paragraph("<b>Repository File Path</b>", style_body_bold), Paragraph("<b>Core Technical Responsibility</b>", style_body_bold)],
-        [Paragraph("Layer 1 (Ingestion)", style_body), Paragraph("Packet & Modbus Sniffer", style_body), Paragraph("<code>backend/realtime/packet_capture.py</code><br/><code>backend/realtime/flow_manager.py</code>", style_code), Paragraph("Raw socket wire capture, TCP Port 502 Modbus sniffing, flow session tracking.", style_body)],
+        [Paragraph("Layer 1 (Ingestion)", style_body), Paragraph("Packet & Modbus Sniffer", style_body), Paragraph("<code>backend/realtime/packet_capture.py</code><br/><code>backend/realtime/flow_manager.py</code>", style_code), Paragraph("Raw socket wire capture, TCP Port 502 Modbus sniffing, dynamic local subnet discovery.", style_body)],
         [Paragraph("Layer 2 (Preproc)", style_body), Paragraph("Feature Extractor & Scaler", style_body), Paragraph("<code>backend/ml_pipeline/preprocess.py</code><br/><code>backend/realtime/feature_extractor.py</code>", style_code), Paragraph("41-feature extraction, RobustScaler outlier scaling, protocol/service tagging.", style_body)],
         [Paragraph("Layer 3 (ML/FDIA)", style_body), Paragraph("Dual-Tier ML + FDIA Detector", style_body), Paragraph("<code>backend/services/anomaly_detector.py</code><br/><code>backend/services/classifier.py</code><br/><code>backend/services/fdia_detector.py</code>", style_code), Paragraph("Tier 1 Isolation Forest + Tier 2 LightGBM/XGBoost + Cyber-Physical Sensor FDIA.", style_body)],
         [Paragraph("Layer 4 (Correlate)", style_body), Paragraph("Correlation & Risk Engine", style_body), Paragraph("<code>backend/services/industrial_correlation_engine.py</code><br/><code>backend/services/risk_engine.py</code><br/><code>backend/services/shap_service.py</code>", style_code), Paragraph("120s multi-source correlation, asset-weighted risk calculation, TreeSHAP feature attribution.", style_body)],
@@ -285,9 +284,39 @@ def create_project_pdf():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 4: DETECTION MODELS, MATHEMATICS & ALGORITHMS
+    # PAGE 4: SIDEBAR NAVIGATION & COMPLETE MODULE-BY-MODULE GUIDE
     # =========================================================================
-    story.append(Paragraph("4. Detection Models & Mathematical Formulations", style_h1))
+    story.append(Paragraph("4. Complete Sidebar Navigation & Module Breakdown", style_h1))
+    story.append(Paragraph("A comprehensive explanation of what every module in the AEGIS-IIOT frontend does and how to explain it:", style_body))
+    
+    sidebar_modules = [
+        ("1. Command Center (/dashboard)", "<b>Core Responsibility:</b> The primary executive overview. Features a real-time Threat Gauge (0-100), continuous Live Network Traffic wave (pkts/s), Industrial Overview with Modbus Port 502 counters, and one-click attack simulation buttons."),
+        ("2. Incident Response (/incidents)", "<b>Core Responsibility:</b> Manages triaged security incidents generated by the 120s correlation engine. Features full incident lifecycle tracking (NEW -> INVESTIGATING -> CONTAINED -> RESOLVED), forensic timelines, and one-click containment."),
+        ("3. AI SOC Copilot (/ai-copilot)", "<b>Core Responsibility:</b> An interactive conversational assistant grounded directly in the live SQLite threat database. Translates complex packet forensics into human summaries and MITRE ATT&CK mitigation playbooks."),
+        ("4. Asset Inventory (/assets)", "<b>Core Responsibility:</b> Registers and classifies all Operational Technology (OT) hardware (PLCs, RTUs, HMIs, Sensors) according to the Purdue Industrial Model, assigning criticality ratings (CRITICAL to LOW)."),
+        ("5. Notification Rules (/notification-rules)", "<b>Core Responsibility:</b> Configures policy-based alerting thresholds and multi-channel dispatch rules (In-App SSE, SMTP Email, Slack Webhooks, and Twilio SMS) with intelligent throttling."),
+        ("6. SIEM Integrations (/integrations)", "<b>Core Responsibility:</b> Monitors external enterprise SOC connector health and provides one-click test tools to verify live dispatch to Slack, Email, and SMS endpoints."),
+        ("7. Live Monitoring (/monitoring)", "<b>Core Responsibility:</b> Embedded deep packet inspection (DPI). Displays real-time connection matrices, live packet rates, and detailed protocol flow tables (Modbus, MQTT, HTTP, SSH)."),
+        ("8. Threat Intelligence (/threat-intelligence)", "<b>Core Responsibility:</b> Profiles external adversary IPs, tracking attack velocity, recurring threat actor scores, and targeted industrial protocol vectors over time."),
+        ("9. Prevention (/prevention)", "<b>Core Responsibility:</b> Autonomous containment engine. Shows the live <code>PREVENTION ENGINE ONLINE</code> status badge (99.8% reliability), active firewall IP blocklists, and rate-limiting rules."),
+        ("10. Analytics & XAI (/analytics)", "<b>Core Responsibility:</b> Explainable AI (XAI) center. Displays exact TreeSHAP feature importance bar charts, confusion matrices, and multi-class classification benchmarks."),
+        ("11. Reports & Forensics (/reports)", "<b>Core Responsibility:</b> Generates compliance-ready (IEC 62443) forensic audit reports with one-click export to PDF and CSV."),
+        ("12. System Architecture (/architecture)", "<b>Core Responsibility:</b> Interactive architectural reference documenting all 6 system layers, detection models, and data flows."),
+        ("13. Settings (/settings)", "<b>Core Responsibility:</b> System configurations, ML anomaly threshold sensitivity sliders, and account profile controls."),
+        ("14. Security Audit Logs (/audit-logs) [Admin Only]", "<b>Core Responsibility:</b> An immutable cryptographic audit trail tracking every user login, incident status update, and manual firewall action for non-repudiation.")
+    ]
+
+    for title, desc in sidebar_modules:
+        story.append(Paragraph(title, style_h2))
+        story.append(Paragraph(desc, style_body))
+        story.append(Spacer(1, 1.5))
+
+    story.append(PageBreak())
+
+    # =========================================================================
+    # PAGE 5: DETECTION MODELS, MATHEMATICS & ALGORITHMS
+    # =========================================================================
+    story.append(Paragraph("5. Detection Models & Mathematical Formulations", style_h1))
     
     ml_models = [
         ("1. Isolation Forest & One-Class SVM (Tier 1 Unsupervised Anomaly Detection)",
@@ -321,24 +350,48 @@ def create_project_pdf():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 5: MAJOR PROJECT DEFENSE & VIVA WALKTHROUGH SCRIPT
+    # PAGE 6: STEP-BY-STEP 5-MINUTE FINAL DEMO SCRIPT & ACTION FLOW
     # =========================================================================
-    story.append(Paragraph("5. Major Project Defense & Viva Script (5-Minute Walkthrough)", style_h1))
+    story.append(Paragraph("6. Step-by-Step 5-Minute Final Demo Script", style_h1))
     story.append(Paragraph(
-        "<b>Opening Statement:</b> 'Good morning respected examiners. Our major project is <b>AEGIS-IIOT: Adaptive Cyber-Physical Defense & Incident Response System for Industrial IoT Networks</b>. Traditional signature firewalls fail in industrial operational technology (OT) because they cannot detect zero-day attacks, do not inspect industrial protocols like Modbus TCP, and are blind to cyber-physical False Data Injection Attacks (FDIA). AEGIS-IIOT is a full-stack, enterprise-grade cybersecurity platform built specifically for industrial automation, robotics, and SCADA environments.'",
+        "Follow this exact sequence on your screen during your major project viva and presentation:",
         style_body
     ))
-    story.append(Paragraph(
-        "<b>Architecture Summary:</b> 'Our system implements an end-to-end 6-layer architecture: (1) Wire packet capture and Modbus TCP port 502 sniffing via Scapy, (2) 41-feature extraction with RobustScaler normalization, (3) A Dual-Tier ML engine (Isolation Forest + LightGBM/XGBoost) combined with a physics-based FDIA detector, (4) A 120s sliding-window correlation engine computing asset-weighted risk scores, (5) An adaptive prevention engine with multi-channel notifications (In-App, Email, Slack, SMS), and (6) A real-time React 19 SOC Command Center with an AI Copilot.'",
-        style_body
-    ))
-    story.append(Paragraph(
-        "<b>Live Production Verification:</b> 'We have deployed the entire platform live in production—Frontend on Vercel CDN and Backend API on Render Cloud—with SQLite WAL high-concurrency optimization, RBAC authentication, and automated containment.'",
-        style_body
-    ))
-    story.append(Spacer(1, 4))
 
-    story.append(Paragraph("Top Examiner Questions & Comprehensive Model Answers:", style_h2))
+    demo_steps = [
+        ("Step 1: Open Command Center & Show Live Wire Telemetry",
+         "• <i>What to Show:</i> Point to the top status badges (<code>● Backend Online</code>, <code>● ML Engine Active</code>, <code>● Stream: Connected</code>) and the continuous flowing waveform in the <b>Live Network Traffic</b> chart.<br/>"
+         "• <i>What to Say:</i> 'Our platform connects via Server-Sent Events to our Flask backend with dynamic host subnet discovery. Notice the continuous live packet rate fluctuating between 2 to 8 pkts/s.'"),
+
+        ("Step 2: Show Industrial Overview & Purdue Asset Model",
+         "• <i>What to Show:</i> Scroll to the <b>Industrial Cybersecurity & Cyber-Physical Overview</b> widget.<br/>"
+         "• <i>What to Say:</i> 'Here we bridge IT network security with OT operational technology. We actively monitor Modbus TCP Port 502 traffic, industrial assets (PLCs, RTUs, HMIs), and sensor telemetry.'"),
+
+        ("Step 3: Trigger Live Modbus Attack Simulation",
+         "• <i>Action:</i> Click <b>[Simulate Modbus TCP Incursion (Port 502)]</b>.<br/>"
+         "• <i>What to Show:</i> The Threat Gauge immediately surges to <b>85-95 (CRITICAL)</b>, a high packet burst appears on the live wave, and a new Critical Alert appears in the feed.<br/>"
+         "• <i>What to Say:</i> 'The system detected an unauthorized Modbus register write on Port 502, correlated the packet flows, and executed automated containment.'"),
+
+        ("Step 4: Trigger Cyber-Physical FDIA Simulation",
+         "• <i>Action:</i> Click <b>[Simulate FDIA Sensor Tampering]</b>.<br/>"
+         "• <i>What to Show:</i> Sensor temperature breaches safety bounds (jumping to 94.6°C), triggering the physics-based FDIA detector and correlating with the PLC control stream."),
+
+        ("Step 5: Navigate to Incident Response & AI SOC Copilot",
+         "• <i>Action:</i> Click <b>Incident Response</b>, show the triaged ticket with forensic timeline. Then open <b>AI SOC Copilot</b> and ask: <i>'Summarize the latest critical industrial incident.'</i><br/>"
+         "• <i>What to Say:</i> 'Our AI Copilot is grounded in our live SQLite database, providing instant root-cause analysis and MITRE ATT&CK mitigation playbooks.'")
+    ]
+
+    for title, desc in demo_steps:
+        story.append(Paragraph(title, style_h2))
+        story.append(Paragraph(desc, style_body))
+        story.append(Spacer(1, 2.5))
+
+    story.append(PageBreak())
+
+    # =========================================================================
+    # PAGE 7: MAJOR PROJECT DEFENSE & TOP 7 VIVA Q&A
+    # =========================================================================
+    story.append(Paragraph("7. Comprehensive Project Defense & Top 7 Viva Q&A", style_h1))
     
     qa_list = [
         ("Q1: Why did you choose Gradient Boosted Trees over Deep Learning (CNN/LSTM)?",
@@ -354,7 +407,13 @@ def create_project_pdf():
          "<b>Answer:</b> In high-speed industrial environments, a single attack burst can trigger hundreds of individual packet alarms. Our Cyber-Physical Correlation Engine uses a 120-second sliding window to group all related network flows, Modbus events, and sensor anomalies against the same asset into a single, deduplicated incident ticket with forensic timeline auditing."),
 
         ("Q5: How does your prevention engine prevent false-positive industrial plant lockouts?",
-         "<b>Answer:</b> AEGIS-IIOT uses a Guarded Policy Engine with multi-factor risk weighting. High-confidence critical attacks trigger deterministic IP blocking and targeted PLC gateway isolation, while ambiguous anomalies trigger adaptive rate-limiting and session termination, ensuring critical physical manufacturing lines never suffer unnecessary shutdowns.")
+         "<b>Answer:</b> AEGIS-IIOT uses a Guarded Policy Engine with multi-factor risk weighting. High-confidence critical attacks trigger deterministic IP blocking and targeted PLC gateway isolation, while ambiguous anomalies trigger adaptive rate-limiting and session termination, ensuring critical physical manufacturing lines never suffer unnecessary shutdowns."),
+
+        ("Q6: How does the platform achieve high-concurrency real-time streaming?",
+         "<b>Answer:</b> We decoupled the architecture into asynchronous background workers: wire sniffing runs in a dedicated thread; notifications use background queues; and the database utilizes SQLite Write-Ahead Logging (WAL mode) for lock-free multi-threaded execution."),
+
+        ("Q7: How does the system ensure live detection across different computers?",
+         "<b>Answer:</b> AEGIS-IIOT implements dynamic host network discovery, automatically binding to the local machine's actual IP and subnet (e.g. 192.168.x.x, 10.0.x.x) and generating real-time timestamps (datetime.utcnow()) on the active session.")
     ]
 
     for q, a in qa_list:
@@ -365,9 +424,9 @@ def create_project_pdf():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 6: IEEE RESEARCH CONTRIBUTIONS & BENCHMARK PERFORMANCE
+    # PAGE 8: IEEE RESEARCH CONTRIBUTIONS & BENCHMARK PERFORMANCE
     # =========================================================================
-    story.append(Paragraph("6. IEEE Research Contributions & Benchmark Evaluation", style_h1))
+    story.append(Paragraph("8. IEEE Research Contributions & Benchmark Evaluation", style_h1))
     story.append(Paragraph(
         "For academic defense, IEEE publication, and technical panel reviews, AEGIS-IIOT demonstrates significant quantitative advantages over standard rule-based IDPS (Snort/Suricata) and traditional machine learning baselines:",
         style_body

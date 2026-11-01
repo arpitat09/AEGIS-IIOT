@@ -75,71 +75,51 @@ label_encoder = joblib.load(
 )
 
 
+from services.anomaly_detector import detect_anomalies, calibrated_anomaly_score
+from services.classifier import xgb_model, lgbm_model, label_encoder
+
+_cached_preprocessor = None
+
+def get_preprocessor():
+    """
+    Singleton accessor for DataPreprocessor to prevent reloading 4 pickle files on every flow.
+    """
+    global _cached_preprocessor
+    if _cached_preprocessor is None:
+        _cached_preprocessor = DataPreprocessor()
+    return _cached_preprocessor
+
+
 # --------------------------------------------------
-# Shared Prediction Logic
+# Shared Prediction Logic (True Hybrid Cascade)
 # --------------------------------------------------
 
 def run_prediction(X, metadata=None):
+    """
+    True IEEE Hybrid Cascade:
+    1. Tier 1 (Unsupervised Anomaly Detection: IF + OC-SVM):
+       Filters normal operational traffic from anomalies.
+    2. Tier 2 (Supervised Attack Classification: XGBoost + LightGBM):
+       Gated to classify confirmed anomalies into DoS, Probe, R2L, or U2R.
+       Normal traffic is preserved as Normal with low baseline risk.
+    """
+    # ---------------------------------------
+    # Tier 1: Anomaly Detection
+    # ---------------------------------------
+    anomaly_result = detect_anomalies(X)
+    anomalies = np.array(anomaly_result["predictions"], dtype=bool)
+    anomaly_scores = np.array(anomaly_result["scores"], dtype=float)
 
     # ---------------------------------------
-    # Tier 1
-    # Anomaly Detection
+    # Tier 2: Attack Classification
     # ---------------------------------------
+    xgb_prob = xgb_model.predict_proba(X)
+    lgb_prob = lgbm_model.predict_proba(X)
+    probabilities = (xgb_prob + lgb_prob) / 2.0
 
-    isolation_prediction = (
-        isolation_forest.predict(X)
-    )
-
-
-    svm_prediction = (
-        oneclass_svm.predict(X)
-    )
-
-
-    anomalies = np.logical_or(
-        isolation_prediction == -1,
-        svm_prediction == -1
-    )
-
-
-    # ---------------------------------------
-    # Tier 2
-    # Attack Classification
-    # ---------------------------------------
-
-    xgb_prob = (
-        xgboost.predict_proba(X)
-    )
-
-
-    lgb_prob = (
-        lightgbm.predict_proba(X)
-    )
-
-
-    probabilities = (
-        xgb_prob + lgb_prob
-    ) / 2
-
-
-    predicted_index = np.argmax(
-        probabilities,
-        axis=1
-    )
-
-
-    predicted_attack = (
-        label_encoder.inverse_transform(
-            predicted_index
-        )
-    )
-
-
-    confidence = np.max(
-        probabilities,
-        axis=1
-    )
-
+    predicted_indices = np.argmax(probabilities, axis=1)
+    attack_labels = label_encoder.inverse_transform(predicted_indices)
+    attack_confidences = np.max(probabilities, axis=1)
 
     results = []
 
@@ -148,42 +128,51 @@ def run_prediction(X, metadata=None):
     # Risk + Prevention + Database
     # ---------------------------------------
 
-    for i in range(
-        len(predicted_attack)
-    ):
+    for i in range(len(anomalies)):
+        flow_metadata = {}
+        if metadata is not None:
+            if isinstance(metadata, list) and i < len(metadata):
+                flow_metadata = metadata[i]
+            elif isinstance(metadata, dict):
+                flow_metadata = metadata
+
+        is_modbus = bool(
+            flow_metadata.get("industrial_protocol") == "Modbus"
+            or flow_metadata.get("service") == "Modbus TCP"
+            or flow_metadata.get("destination_port") == 502
+            or flow_metadata.get("source_port") == 502
+        )
+        is_fdia = bool(flow_metadata.get("is_fdia"))
+        asset_crit = flow_metadata.get("asset_criticality")
+
+        # Gated Decision: Only anomalous flows or explicit cyber-physical incursions are categorized as attacks
+        is_anom = bool(anomalies[i]) or is_modbus or is_fdia
+
+        if is_anom:
+            attack_name = str(attack_labels[i])
+            conf_val = float(attack_confidences[i])
+        else:
+            attack_name = "Normal"
+            conf_val = float(max(0.5, 1.0 - anomaly_scores[i]))
 
         risk = calculate_risk(
-            predicted_attack[i],
-            float(confidence[i])
+            attack=attack_name,
+            confidence=conf_val,
+            anomaly_score=float(anomaly_scores[i]),
+            asset_criticality=asset_crit,
+            is_modbus=is_modbus,
+            is_fdia=is_fdia
         )
 
-
-        prevention = (
-            get_prevention_action(
-                risk["severity"]
-            )
-        )
-
+        prevention = get_prevention_action(risk["severity"])
 
         result = {
-
-            "anomaly":
-                bool(anomalies[i]),
-
-            "attack":
-                risk["attack"],
-
-            "confidence":
-                risk["confidence"],
-
-            "risk_score":
-                risk["risk_score"],
-
-            "severity":
-                risk["severity"],
-
-            "action":
-                prevention["action"]
+            "anomaly": is_anom,
+            "attack": risk["attack"],
+            "confidence": risk["confidence"],
+            "risk_score": risk["risk_score"],
+            "severity": risk["severity"],
+            "action": prevention["action"]
         }
 
 
@@ -381,11 +370,7 @@ def predict_features(
             df
         )
 
-
-    preprocessor = (
-        DataPreprocessor()
-    )
-
+    preprocessor = get_preprocessor()
 
     X = preprocessor.transform(
         df

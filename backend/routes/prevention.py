@@ -14,11 +14,18 @@ prevention_bp = Blueprint(
 # DYNAMIC PREVENTION ENGINE STATUS
 # ==================================================
 
+from services.prevention_engine import get_prevention_metrics, execute_prevention, SAFE_ALLOWLIST
+
+
 @prevention_bp.route("/status", methods=["GET"])
 def get_prevention_status():
     """
     Dynamically returns the operational health and activity of the Adaptive Prevention Engine.
+    Distinguishes RECOMMENDED vs EXECUTED vs VERIFIED_SUCCESS.
     """
+    metrics = get_prevention_metrics()
+    stats = metrics["statistics"]
+
     total_actions = (
         db.session.query(func.count(Alert.id))
         .filter(Alert.action.in_(["Block IP", "Rate Limit", "Terminate Session", "Isolate Device"]))
@@ -67,25 +74,26 @@ def get_prevention_status():
         else None
     )
 
-    # Status determination:
-    # ACTIVE: Engine active and processing rules
-    # DEGRADED: Partial policy coverage
-    # OFFLINE: System disconnected
-    engine_status = "ACTIVE"
-    engine_online = True
-
     return jsonify({
-        "status": engine_status,
-        "engine_online": engine_online,
-        "mode": "Automated Dynamic Containment",
+        "status": "ACTIVE",
+        "engine_online": True,
+        "mode": "Automated Verified Adaptive Containment",
         "last_action_time": last_action_time,
         "total_actions": total_actions,
         "blocked_ips": blocked_ips,
         "rate_limited": rate_limited,
         "terminated_sessions": terminated_sessions,
         "isolated_devices": isolated_devices,
-        "success_rate": 99.8,
-        "firewall_mode": "Stateful Dynamic ACL",
+        "success_rate": metrics["success_rate"],
+        "verification_metrics": {
+            "requested": stats["requested_count"],
+            "executed": stats["executed_count"],
+            "verified_success": stats["verified_success_count"],
+            "failed": stats["failed_count"],
+            "allowlist_protected": stats["allowlist_prevented_count"]
+        },
+        "active_enforcement_count": metrics["active_rules_count"],
+        "firewall_mode": "Stateful Dynamic ACL & Verified Drop Table",
         "plc_isolation_ready": True
     })
 

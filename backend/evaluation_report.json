@@ -1,0 +1,168 @@
+{
+  "isolation_forest_alone": {
+    "accuracy": 0.4867,
+    "precision": 0.8397,
+    "recall": 0.1213,
+    "f1_score": 0.2119,
+    "fpr": 0.0306,
+    "fnr": 0.8787,
+    "confusion_matrix": {
+      "TN": 9414,
+      "FP": 297,
+      "FN": 11274,
+      "TP": 1556
+    },
+    "latency": {
+      "mean_latency_ms": 15.179,
+      "median_latency_ms": 14.262,
+      "p95_latency_ms": 22.637,
+      "p99_latency_ms": 25.625,
+      "samples_tested": 500
+    }
+  },
+  "oneclass_svm_alone": {
+    "accuracy": 0.7347,
+    "precision": 0.9563,
+    "recall": 0.5594,
+    "f1_score": 0.7059,
+    "fpr": 0.0338,
+    "fnr": 0.4406,
+    "confusion_matrix": {
+      "TN": 9383,
+      "FP": 328,
+      "FN": 5653,
+      "TP": 7177
+    },
+    "latency": {
+      "mean_latency_ms": 1.456,
+      "median_latency_ms": 1.308,
+      "p95_latency_ms": 2.333,
+      "p99_latency_ms": 2.937,
+      "samples_tested": 500
+    }
+  },
+  "xgboost_alone": {
+    "accuracy": 0.681,
+    "macro_f1": 0.482,
+    "weighted_f1": 0.6883,
+    "latency": {
+      "mean_latency_ms": 13.674,
+      "median_latency_ms": 11.077,
+      "p95_latency_ms": 36.672,
+      "p99_latency_ms": 43.773,
+      "samples_tested": 500
+    }
+  },
+  "lightgbm_alone": {
+    "accuracy": 0.7302,
+    "macro_f1": 0.5278,
+    "weighted_f1": 0.7289,
+    "latency": {
+      "mean_latency_ms": 3.447,
+      "median_latency_ms": 2.719,
+      "p95_latency_ms": 7.231,
+      "p99_latency_ms": 11.862,
+      "samples_tested": 500
+    }
+  },
+  "gbdt_ensemble": {
+    "accuracy": 0.716,
+    "macro_f1": 0.5151,
+    "weighted_f1": 0.7198,
+    "latency": {
+      "mean_latency_ms": 12.096,
+      "median_latency_ms": 9.696,
+      "p95_latency_ms": 26.787,
+      "p99_latency_ms": 33.47,
+      "samples_tested": 500
+    }
+  },
+  "complete_hybrid_pipeline": {
+    "accuracy": 0.6752,
+    "macro_f1": 0.4135,
+    "weighted_f1": 0.6119,
+    "confusion_matrix_classes": [
+      "Normal",
+      "DoS",
+      "Probe",
+      "R2L",
+      "U2R"
+    ],
+    "confusion_matrix": [
+      [
+        9316,
+        128,
+        36,
+        211,
+        20
+      ],
+      [
+        1256,
+        5638,
+        319,
+        218,
+        27
+      ],
+      [
+        1843,
+        346,
+        228,
+        0,
+        1
+      ],
+      [
+        2521,
+        308,
+        33,
+        10,
+        15
+      ],
+      [
+        33,
+        3,
+        1,
+        3,
+        27
+      ]
+    ],
+    "per_class": {
+      "Normal": {
+        "precision": 0.6224,
+        "recall": 0.9593,
+        "f1_score": 0.7549,
+        "support": 9711
+      },
+      "DoS": {
+        "precision": 0.8778,
+        "recall": 0.756,
+        "f1_score": 0.8123,
+        "support": 7458
+      },
+      "Probe": {
+        "precision": 0.3695,
+        "recall": 0.0943,
+        "f1_score": 0.1502,
+        "support": 2418
+      },
+      "R2L": {
+        "precision": 0.0226,
+        "recall": 0.0035,
+        "f1_score": 0.006,
+        "support": 2887
+      },
+      "U2R": {
+        "precision": 0.3,
+        "recall": 0.403,
+        "f1_score": 0.3439,
+        "support": 67
+      }
+    },
+    "latency": {
+      "mean_latency_ms": 82.739,
+      "median_latency_ms": 73.84,
+      "p95_latency_ms": 147.531,
+      "p99_latency_ms": 175.108,
+      "samples_tested": 500
+    }
+  }
+}
