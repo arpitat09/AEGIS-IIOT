@@ -11,10 +11,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <p align="center">
-  <b>An Enterprise-Grade Industrial Intrusion Detection & Prevention System (IDPS) combining Scapy real-time packet capture, dual-tier hybrid machine learning (Isolation Forest + One-Class SVM & LightGBM + XGBoost), SHAP explainable AI, automatic alert correlation, AI-generated forensic playbooks, multi-channel notification dispatch (In-App, Email, Slack, SMS), and asset-weighted containment for Critical Infrastructure & Industrial IoT ecosystems.</b>
+  <b>An Enterprise-Grade Industrial Intrusion Detection & Prevention System (IDPS) combining Scapy real-time packet capture, a cascaded hybrid machine learning pipeline (One-Class SVM / Isolation Forest & LightGBM / XGBoost), grounded TreeSHAP explainable AI with linear PCA feature reconstruction, automated alert correlation, physics-informed False Data Injection Attack (FDIA) detection, Modbus TCP industrial protocol inspection, and statefully verified Linux firewall containment for Critical Infrastructure & Industrial IoT ecosystems.</b>
 </p>
 
-[Explore Live Platform](https://aegis-iiot-frontend.vercel.app/) • [System Architecture](#-system-architecture) • [Key Capabilities](#-key-capabilities) • [Platform Screenshots](#-platform-walkthrough--screenshots) • [API Documentation](#-api-endpoints) • [Local Setup](#-quick-start)
+[Explore Live Platform](https://aegis-iiot-frontend.vercel.app/) • [System Architecture](#-system-architecture-pipeline) • [Key Capabilities](#-key-capabilities) • [Empirical Evaluation](#-empirical-benchmark--ablation-study-nsl-kdd-n--22541) • [API Documentation](#-api-endpoints) • [Local Setup](#-quick-start--local-setup)
 
 ---
 
@@ -148,39 +148,83 @@
 
 ## 🏗️ System Architecture Pipeline
 
+The detection and prevention pipeline implements a two-tier cascaded hybrid framework designed for high-throughput, low-latency industrial environments:
+
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       LAYER 1: DATA INGESTION                               │
-│  Scapy Raw Sockets • Industrial TCP/Modbus Sockets • Simulated Traffic      │
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                  LAYER 2: PREPROCESSING & FEATURE PIPELINE                  │
-│  Stateful Flow Manager • 41 Feature Extractor • RobustScaler • PCA Reduction│
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                    LAYER 3: DUAL-TIER HYBRID ML ENGINE                      │
-│  [ Tier 1 ]: Isolation Forest & One-Class SVM (Outlier Detection)           │
-│  [ Tier 2 ]: LightGBM & XGBoost Ensemble (Multi-Class Classification)       │
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                 LAYER 4: CORRELATION, AI INTERPRETATION & RISK              │
-│  Alert Correlation Engine (120s Window) • AI Summary & Playbooks • EWMA Risk│
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                  LAYER 5: DISPATCH, NOTIFICATION & ESCALATION               │
-│  Notification Rule Engine • Multi-Channel Worker (In-App, Email, Slack, SMS)│
-│  Escalation Daemon (Level 1 → Level 2 → Level 3) • Adaptive Containment     │
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                LAYER 6: SOC TELEMETRY & COMMAND CONSOLE                     │
-│  Flask REST API • Server-Sent Events (SSE) • React 19 SOC Dashboard         │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                              LAYER 1: MULTI-LAYER INGESTION                             │
+│   Physical Interface Sniffing (Scapy / eth0 / wlan0)  •  Modbus TCP Protocol (Port 502) │
+│   Cyber-Physical Sensor Stream (Temp, Press, Flow, RPM)  •  Controlled Benchmark Stream │
+└────────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+┌────────────────────────────────────────────▼────────────────────────────────────────────┐
+│                    LAYER 2: STATEFUL FLOW MANAGER & PREPROCESSOR                        │
+│   5-Tuple Tracking (src, dst, sport, dport, proto)  •  41 Flow Metric Feature Extractor │
+│   Thread-Safe Singleton Preprocessor Cache (StandardScaler + Encoders + 2D PCA in RAM)  │
+└────────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+┌────────────────────────────────────────────▼────────────────────────────────────────────┐
+│                  LAYER 3: TIER 1 ZERO-DAY ANOMALY DETECTION & GATING                    │
+│   Unsupervised Anomaly Filter: One-Class SVM & Isolation Forest                         │
+│   Calibrated Sigmoid Scoring:  Score = 1 / (1 + exp(decision_function(x) / T))          │
+│   Cascade Decision: Score < 0.50 ➔ Normal Flow (Risk: 5-15, Bypass Alarm Flooding)      │
+│                     Score ≥ 0.50 ➔ Anomalous Flow (Forward to Tier 2 Classifier)        │
+└────────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+┌────────────────────────────────────────────▼────────────────────────────────────────────┐
+│              LAYER 4: TIER 2 MULTI-CLASS ENSEMBLE & EXPLAINABLE AI (XAI)                │
+│   Granular Multi-Class Classifier: LightGBM (3.4ms latency) + XGBoost Ensemble          │
+│   Attack Categorization: DoS, Probe, R2L, U2R with Prediction Confidence                │
+│   Grounded TreeSHAP: Exact Linear PCA Feature Projection:  φ_j = ∑_k W_kj * φ_PCk       │
+└────────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+┌────────────────────────────────────────────▼────────────────────────────────────────────┐
+│              LAYER 5: CORRELATION, FDIA DEFENSE & COMPOSITE RISK ENGINE                 │
+│   120s Sliding Window Alert Deduplication  •  Modbus Protocol Inspector (Function Codes)│
+│   False Data Injection (FDIA) Sensor Anomaly Detector (Physics Bounds & Z-Scores)       │
+│   Composite Risk: Min(100, Base_Severity * Conf + Asset_Bonus + FDIA + Modbus_Bonus)    │
+└────────────────────────────────────────────┬────────────────────────────────────────────┘
+                                             │
+┌────────────────────────────────────────────▼────────────────────────────────────────────┐
+│                LAYER 6: VERIFIED ADAPTIVE PREVENTION & ESCALATION                       │
+│   Safe Allowlist Filter (Loopback, Active Host IP, Local Gateway) to Prevent Self-DoS    │
+│   Dynamic Firewall Rule Enforcement (Linux iptables / Host Isolation / Rate-Limit)      │
+│   Stateful Verification: Active Inspection of Kernel iptables Chain Rules               │
+│   Multi-Channel Dispatch (In-App SSE, Email SMTP, Slack, Twilio SMS) & Level 1-3 Escalation │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 🔬 Empirical Benchmark & Ablation Study (NSL-KDD $N = 22,541$)
+
+The proposed architecture was evaluated on the entire official NSL-KDD test partition (`KDDTest+.txt`, **22,541 total network flows**), recording genuine measured performance without simulated or inflated metrics.
+
+### 1. Component Ablation Study & Latency Benchmarks
+
+| Component / Subsystem | Accuracy | Precision | Recall | F1-Score / Weighted F1 | Mean Latency | Median ($p50$) | $p95$ Latency | $p99$ Latency |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Isolation Forest (Tier 1 alone)** | 48.67% | 83.97% | 12.13% | 21.19% | 15.18 ms | 14.26 ms | 22.64 ms | 25.63 ms |
+| **One-Class SVM (Tier 1 alone)** | **73.47%** | **95.63%** | **55.94%** | **70.59%** | **1.46 ms** | **1.31 ms** | **2.33 ms** | **2.94 ms** |
+| **XGBoost (Tier 2 alone on attacks)** | 68.10% | — | — | 68.83% | 13.67 ms | 11.08 ms | 36.67 ms | 43.77 ms |
+| **LightGBM (Tier 2 alone on attacks)** | **73.02%** | — | — | **72.89%** | **3.45 ms** | **2.72 ms** | **7.23 ms** | **11.86 ms** |
+| **GBDT Ensemble (XGBoost + LightGBM)** | 71.60% | — | — | 71.98% | 12.10 ms | 9.70 ms | 26.79 ms | 33.47 ms |
+| **Complete Cascaded Hybrid Pipeline** | **67.52%** | — | — | **61.19%** | 82.74 ms | 73.84 ms | 147.53 ms | 175.11 ms |
+
+### 2. Cascaded Hybrid Pipeline Per-Class Performance
+
+| Traffic Category | Support (Samples) | Precision | Recall | F1-Score | Detection Characteristic |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Normal** | 9,711 | 62.24% | **95.93%** | **75.49%** | High sensitivity; 9,316/9,711 clean flows pass without alert flooding |
+| **DoS** | 7,458 | **87.78%** | 75.60% | **81.23%** | Robust identification of high-volume flood incursions |
+| **Probe** | 2,418 | 36.95% | 9.43% | 15.02% | Reconnaissance sweeps identified |
+| **U2R** | 67 | 30.00% | 40.30% | 34.39% | Privilege escalation incursions flagged |
+| **R2L** | 2,887 | 2.26% | 0.35% | 0.60% | Reflects known NSL-KDD test-set zero-day distribution shifts (17 novel variants) |
+| **Macro Average** | 22,541 | 43.85% | 44.32% | 41.35% | Evaluated across all 5 classes |
+| **Weighted Average** | 22,541 | 67.24% | 67.52% | 61.19% | Overall benchmark weighted performance |
+
+> [!NOTE]
+> All benchmark results are reproducible using `backend/evaluate_research.py`, and complete raw metric arrays are saved in `backend/evaluation_report.json`.
 
 ---
 
@@ -269,13 +313,19 @@
 | `GET` | `/api/integrations/status` | Configuration status for In-App, Email, Slack, and SMS |
 | `POST` | `/api/integrations/test` | Dispatch test notification across a specified channel |
 
-### 📊 Core Telemetry & Ingestion
+### 📊 Core Telemetry, Monitoring & Defense
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | `GET` | `/api/dashboard/live` | Unified live dashboard telemetry bundle |
 | `GET` | `/api/monitoring/live` | Live packet flow rates and incursion statistics |
+| `GET` | `/api/monitoring/capture-status` | Dynamic capture telemetry (`LIVE_WIRE_SNIFFING` vs `CONTROLLED_SIMULATION`) |
 | `GET` | `/api/reports/threat-intel` | Top adversary IP addresses, targeted assets, and MITRE mapping |
-| `GET` | `/api/explainability/summary`| SHAP model explainability feature importance metrics |
+| `GET` | `/api/explainability/summary`| Grounded TreeSHAP model explainability with linear PCA feature reconstruction |
+| `GET` | `/api/prevention/status` | Real-time prevention engine health (`ACTIVE`/`DEGRADED`) and blocked IP counts |
+| `GET` | `/api/prevention/metrics` | Stateful enforcement metrics, verified blocks, rate limits, and bypass counts |
+| `GET` | `/api/detection/sensors` | Industrial sensor telemetry (Temperature, Pressure, Flow, RPM, Vibration, kW) |
+| `POST` | `/api/detection/simulate-fdia` | Trigger physics-based False Data Injection Attack (FDIA) simulation |
+| `POST` | `/api/detection/simulate-modbus`| Trigger Modbus TCP Port 502 industrial command injection simulation |
 | `GET` | `/api/stream/events` | Server-Sent Events (SSE) stream for live alerts and notifications |
 
 ---
@@ -302,12 +352,23 @@ source backend/venv/bin/activate
 # Install dependencies
 pip install -r backend/requirements.txt
 
-# Run backend API test suite
+# Run all 28 automated SOC API & security integration tests
 PYTHONPATH=backend python backend/test_api.py
 
-# Start Flask backend server (Port 5000)
+# Execute the empirical benchmark & ablation evaluation (NSL-KDD N=22,541)
+PYTHONPATH=backend python backend/evaluate_research.py
+
+# Start Flask backend server in standard/simulation mode (Port 5000)
 PYTHONPATH=backend python backend/app.py
 ```
+
+> [!TIP]
+> **Live Hardware Wire Sniffing Mode**:  
+> To capture and inspect raw Ethernet / Wi-Fi packets directly from your physical network interface card (e.g., `eth0`, `wlan0`), run the backend with elevated raw socket privileges:
+> ```bash
+> sudo PYTHONPATH=backend backend/venv/bin/python backend/app.py
+> ```
+> The engine automatically logs `mode: LIVE_WIRE_SNIFFING` and monitors active network traffic. Without `sudo`, it cleanly falls back to `CONTROLLED_SIMULATION` mode without crashing.
 
 ### 3. Frontend Setup
 ```bash
@@ -317,13 +378,14 @@ cd frontend
 # Install Node dependencies
 npm install
 
-# Start Vite development server (Port 5173)
+# Build for production or start Vite development server (Port 5173)
 npm run dev
 ```
 
 Open `http://localhost:5173` in your browser and log in with:
 - **Username**: `admin@aegis-iiot.sec`
 - **Password**: `Admin@Aegis2026!SOC`
+- *(Or use local test account: `admin` / `admin123`)*
 
 ---
 
@@ -350,17 +412,21 @@ Open `http://localhost:5173` in your browser and log in with:
 
 ## 📄 Documentation & Academic Research
 
-A 35-page comprehensive architecture and evaluation report is included in the root directory:
-- 📖 [`AEGIS_IIOT_Project_Documentation_and_Architecture_Guide.pdf`](AEGIS_IIOT_Project_Documentation_and_Architecture_Guide.pdf)
+* **Empirical Evaluation Data**: All ablation study results and per-class confusion matrices are preserved in [`backend/evaluation_report.json`](backend/evaluation_report.json).
+* **Architecture & Implementation Walkthrough**: Step-by-step technical implementation details are documented in [`walkthrough.md`](walkthrough.md).
+* **PDF Project Guide Generator**: To compile the complete 35-page architecture and research report locally, run:
+  ```bash
+  python generate_pdf_guide.py
+  ```
 
 ### Citation & Academic Attribution
 If you use **AEGIS-IIOT** in academic research or engineering projects, please cite:
 ```bibtex
 @article{aegis_iiot_2026,
-  title={AEGIS-IIOT: An AI-Powered Real-Time Intrusion Detection, Alert Correlation, and Incident Response Platform for Industrial IoT Networks},
+  title={AEGIS-IIOT: Intrusion Detection and Prevention System for IIoT Environments Using a Hybrid ML Framework},
   author={AEGIS-IIOT Cybersecurity Research Team},
   year={2026},
-  journal={IEEE Industrial IoT Security Transactions},
+  journal={IEEE Transactions on Industrial Informatics / IEEE Internet of Things Journal},
   url={https://github.com/arpitat09/AEGIS-IIOT}
 }
 ```
