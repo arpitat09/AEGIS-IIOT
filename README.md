@@ -14,7 +14,7 @@
   <b>An Enterprise-Grade Industrial Intrusion Detection & Prevention System (IDPS) combining Scapy real-time packet capture, a cascaded hybrid machine learning pipeline (One-Class SVM / Isolation Forest & LightGBM / XGBoost), grounded TreeSHAP explainable AI with linear PCA feature reconstruction, automated alert correlation, physics-informed False Data Injection Attack (FDIA) detection, Modbus TCP industrial protocol inspection, and statefully verified Linux firewall containment for Critical Infrastructure & Industrial IoT ecosystems.</b>
 </p>
 
-[Explore Live Platform](https://aegis-iiot-frontend.vercel.app/) • [System Architecture](#-system-architecture-pipeline) • [Key Capabilities](#-key-capabilities) • [Empirical Evaluation](#-empirical-benchmark--ablation-study-nsl-kdd-n--22541) • [API Documentation](#-api-endpoints) • [Local Setup](#-quick-start--local-setup)
+[Explore Live Platform](https://aegis-iiot-frontend.vercel.app/) • [Platform Screenshots](#-platform-walkthrough--screenshots) • [System Architecture](#-system-architecture-pipeline) • [Key Capabilities](#-key-capabilities) • [Empirical Evaluation](#-empirical-benchmark--ablation-study-nsl-kdd-n--22541) • [API Documentation](#-api-endpoints) • [Local Setup](#-quick-start--local-setup)
 
 ---
 
@@ -39,52 +39,99 @@
 
 ## 📸 Platform Walkthrough & Screenshots
 
-### 1. Unified SOC Command Center & Live Threat Telemetry
+### 0. End-to-End System Architecture & Data Flow
 <p align="center">
-  <img src="docs/screenshots/02_command_center_dashboard.png" alt="Command Center Dashboard" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+  <img src="docs/screenshots/00_system_architecture.png" alt="AEGIS-IIOT System Architecture" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
 </p>
-<p align="center"><i>Real-time attack velocity area graphs, live incursion feed, donut threat distribution, dynamic EWMA score gauge, and active incident summary cards.</i></p>
+<p align="center"><i>Full pipeline flow from raw Scapy wire capture to two-tier cascaded hybrid ML, cyber-physical threat correlation, grounded TreeSHAP explainability, multi-channel dispatch, and automated prevention.</i></p>
 
 ---
 
-### 2. End-to-End System Architecture
+### 1. Unified SOC Command Center & Cyber-Physical Overview
 <p align="center">
-  <img src="docs/screenshots/01_system_architecture.png" alt="AEGIS-IIOT System Architecture" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+  <img src="docs/screenshots/01_command_center.png" alt="Unified SOC Command Center" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
 </p>
-<p align="center"><i>Full pipeline flow from raw packet capture to dual-tier ML ensemble, alert correlation, AI summarization, multi-channel dispatch, and automated prevention.</i></p>
+<p align="center"><i>Real-time industrial cybersecurity overview featuring live Modbus TCP Port 502 telemetry, physical sensor bounds monitoring, dynamic threat level gauge (30/100 LOW), continuous rolling traffic wave, one-click Modbus & FDIA simulation triggers, and active security event counters.</i></p>
 
 ---
 
-### 3. Real-Time Packet Capture & High-Speed Ingestion
+### 2. Incident Response & Containment Center
 <p align="center">
-  <img src="docs/screenshots/03_realtime_monitoring.png" alt="Real-Time Monitoring" width="48%" style="border-radius: 8px; border: 1px solid #1e293b;" />
-  <img src="docs/screenshots/07_packet_ingestion.png" alt="Packet Ingestion Pipeline" width="48%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+  <img src="docs/screenshots/02_incident_response.png" alt="Incident Response and Containment Center" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
 </p>
-<p align="center"><i>Sub-second Scapy raw socket packet sniffer converting bidirectional wire frames into 41 stateful network flow features.</i></p>
+<p align="center"><i>Correlated industrial cybersecurity incident cards displaying automated risk scores, attack vectors (Probe, R2L, U2R, DoS), targeted OT devices, triage tabs (NEW, ACKNOWLEDGED, INVESTIGATING, CONTAINED), and one-click mitigation playbooks.</i></p>
 
 ---
 
-### 4. Threat Intelligence & Global Incursion Mapping
+### 3. AI SOC Security Copilot & Forensic Insights
 <p align="center">
-  <img src="docs/screenshots/04_threat_intelligence.png" alt="Threat Intelligence Feed" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+  <img src="docs/screenshots/03_ai_soc_copilot.png" alt="AI SOC Copilot & Threat Insights" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
 </p>
-<p align="center"><i>Adversary tracking, top attacking subnets, targeted OT devices, and MITRE ATT&CK tactical mapping.</i></p>
+<p align="center"><i>Interactive AI SOC Copilot grounded in live SQLite telemetry, ML feature attributions, and industrial asset topology—answering natural language threat inquiries, explaining root causes, and generating targeted mitigation playbooks.</i></p>
 
 ---
 
-### 5. Advanced Analytics & Explainable AI (SHAP Feature Attributions)
+### 4. Industrial IoT Asset Inventory & Zone Registry
 <p align="center">
-  <img src="docs/screenshots/05_analytics_and_xai.png" alt="Analytics and Explainability" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+  <img src="docs/screenshots/04_asset_inventory.png" alt="Industrial Asset Inventory" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
 </p>
-<p align="center"><i>Deep forensic attribution graphs showing exact flow features (duration, byte volume, error rates) driving model classification decisions.</i></p>
+<p align="center"><i>Asset-aware inventory mapping critical Purdue Model zones (Zone 1 Safety/Cell, Zone 2 SCADA Control, Zone 3 Plant DMZ) with device criticality ratings, live threat counts, and one-click industrial node isolation controls.</i></p>
 
 ---
 
-### 6. Adaptive Prevention & Containment Firewall Rules
+### 5. Real-Time Packet Wire Sniffing & Live Traffic Telemetry
 <p align="center">
-  <img src="docs/screenshots/06_prevention_rules.png" alt="Prevention and Firewall Rules" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+  <img src="docs/screenshots/05_live_monitoring.png" alt="Live Network Monitoring" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
 </p>
-<p align="center"><i>Automated IP blocking, industrial PLC node isolation, session termination, and rate-limiting policy rules.</i></p>
+<p align="center"><i>Sub-second live network monitoring tracking packet rates, active industrial connections, throughput bandwidth, and real-time device health states across the operational subnet.</i></p>
+
+---
+
+### 6. Threat Intelligence Feed & Adversary Profiling
+<p align="center">
+  <img src="docs/screenshots/06_threat_intelligence.png" alt="Threat Intelligence Feed" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+</p>
+<p align="center"><i>Automated adversary profile aggregation ranking top malicious threat sources by incursion frequency, average risk rating, primary attack vector, and most targeted industrial IP assets.</i></p>
+
+---
+
+### 7. Adaptive Prevention Engine & Dynamic ACL Enforcement
+<p align="center">
+  <img src="docs/screenshots/07_prevention_engine.png" alt="Adaptive Prevention Engine" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+</p>
+<p align="center"><i>Verified adaptive prevention dashboard displaying live prevention engine status (ONLINE), 100% action execution reliability, active Linux firewall ACL rules, safe allowlist verification, and manual IP blocking controls.</i></p>
+
+---
+
+### 8. Security Analytics & Attack Taxonomy Distribution
+<p align="center">
+  <img src="docs/screenshots/08_security_analytics.png" alt="Security Analytics and Attack Distribution" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+</p>
+<p align="center"><i>Comprehensive analytics dashboard visualizing attack type distributions (Normal, Probe, R2L, Unauthorized Modbus Function Requests), severity breakdown pie charts, and automated prevention action distributions.</i></p>
+
+---
+
+### 9. Notification & Multi-Level Escalation Policy Engine
+<p align="center">
+  <img src="docs/screenshots/09_notification_rules.png" alt="Notification & Escalation Rules Engine" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+</p>
+<p align="center"><i>Configurable condition-based notification policies with custom risk score thresholds, evaluation time windows, multi-channel dispatch toggles, and automatic SOC escalation timelines (Analyst → OT Engineer → Security Manager).</i></p>
+
+---
+
+### 10. Enterprise Notification & Multi-Channel SIEM Integrations
+<p align="center">
+  <img src="docs/screenshots/10_siem_integrations.png" alt="SIEM Integrations Dashboard" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+</p>
+<p align="center"><i>Integration hub for In-App SOC SSE notification stream, SMTP Email Gateway, Slack & Microsoft Teams Webhooks, and Twilio SMS dispatch with one-click test alert verification triggers.</i></p>
+
+---
+
+### 11. Immutable Security Audit Logs & Governance Trail
+<p align="center">
+  <img src="docs/screenshots/11_security_audit_logs.png" alt="Security Audit Logs" width="95%" style="border-radius: 8px; border: 1px solid #1e293b;" />
+</p>
+<p align="center"><i>Tamper-evident administrative audit logs recording all operator authentication events, containment actions, rule modifications, and user lifecycle events for regulatory and compliance audits.</i></p>
 
 ---
 
